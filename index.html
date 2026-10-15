@@ -1,0 +1,613 @@
+<title>자유곡 모집 보드</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: Apple 타일 교차 — 흰 히어로 → 다크 신청 방법 → 파치먼트 모집 보드 → 파치먼트 푸터. 색 변화가 구분선. */
+:root{
+  --primary:#0066cc; --primary-focus:#0071e3; --link-dark:#2997ff;
+  --ink:#1d1d1f; --muted:#6e6e73; --muted-48:#7a7a7a;
+  --canvas:#ffffff; --parchment:#f5f5f7; --pearl:#fafafc;
+  --tile:#272729; --tile-2:#2a2a2c; --on-dark:#ffffff; --on-dark-muted:#cccccc;
+  --hairline:#e0e0e0; --divider:#f0f0f0; --chip:#e8e8ed;
+  --nav:#000000; --frost:rgba(245,245,247,.8);
+  --ok:#1d8a3a; --ok-bg:#e3f4e8; --warn:#b25000; --warn-bg:#fff1e0; --done:#6e6e73; --done-bg:#ececf0;
+  --scrim:rgba(0,0,0,.4);
+  --display:"SF Pro Display",system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+  --text:"SF Pro Text",system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --primary:#2997ff; --primary-focus:#2997ff; --ink:#f5f5f7; --muted:#a1a1a6; --muted-48:#8e8e93;
+  --canvas:#000000; --parchment:#161617; --pearl:#1d1d1f; --tile:#1d1d1f; --tile-2:#232325;
+  --hairline:#38383a; --divider:#2c2c2e; --chip:#2c2c2e; --frost:rgba(22,22,23,.8);
+  --ok:#4cd471; --ok-bg:#12321c; --warn:#ffb050; --warn-bg:#3a2608; --done:#a1a1a6; --done-bg:#2c2c2e;
+  --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --primary:#2997ff; --primary-focus:#2997ff; --ink:#f5f5f7; --muted:#a1a1a6; --muted-48:#8e8e93;
+  --canvas:#000000; --parchment:#161617; --pearl:#1d1d1f; --tile:#1d1d1f; --tile-2:#232325;
+  --hairline:#38383a; --divider:#2c2c2e; --chip:#2c2c2e; --frost:rgba(22,22,23,.8);
+  --ok:#4cd471; --ok-bg:#12321c; --warn:#ffb050; --warn-bg:#3a2608; --done:#a1a1a6; --done-bg:#2c2c2e;
+  --scrim:rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--canvas);color:var(--ink);font-family:var(--text);font-size:17px;line-height:1.47;letter-spacing:-.374px;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance}
+p{margin:0}
+button,input,textarea{font:inherit;letter-spacing:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--primary-focus);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wide{max-width:1200px}
+
+/* nav */
+.gnav{background:var(--nav);color:#fff;height:44px;font-size:12px;letter-spacing:-.12px}
+.gnav .wrap{display:flex;align-items:center;justify-content:space-between;height:100%;max-width:1024px}
+.gnav a{color:#e8e8ed;text-decoration:none;opacity:.88}
+.gnav .links{display:flex;gap:24px}
+.brand{font-weight:600;font-size:14px;opacity:1!important;color:#fff!important}
+.subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--frost);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--hairline);height:52px}
+.subnav .wrap{display:flex;align-items:center;justify-content:space-between;height:100%;max-width:1024px;gap:12px}
+.subnav .name{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.231px}
+.subnav .right{display:flex;align-items:center;gap:20px;font-size:12px}
+.subnav .right a{color:var(--ink);text-decoration:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:9999px;padding:11px 22px;font-size:17px;cursor:pointer;background:var(--primary);color:#fff;text-decoration:none;transition:transform .1s}
+.btn:active{transform:scale(.95)}
+.btn.sm{padding:6px 14px;font-size:12px;min-height:28px}
+.btn.ghost{background:transparent;color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+.btn.quiet{background:var(--chip);color:var(--ink)}
+.btn.danger{background:transparent;color:#d70015;box-shadow:inset 0 0 0 1px #d70015}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.link{color:var(--primary);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
+.on-dark .link{color:var(--link-dark)}
+
+/* tiles */
+.tile{padding-block:80px}
+.hero{background:var(--canvas);text-align:center;padding-block:72px 64px}
+.hero h1{font-size:56px;line-height:1.07;letter-spacing:-.28px}
+.hero .lead{font-size:28px;line-height:1.14;letter-spacing:.196px;margin-top:10px;color:var(--ink)}
+.hero .ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.stats{display:flex;justify-content:center;gap:48px;margin-top:48px;flex-wrap:wrap}
+.stat b{display:block;font-family:var(--display);font-size:40px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--muted);letter-spacing:-.224px}
+
+.on-dark{background:var(--tile);color:var(--on-dark)}
+.eyebrow{font-size:14px;font-weight:600;letter-spacing:-.224px;color:var(--muted)}
+.on-dark .eyebrow{color:var(--on-dark-muted)}
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-head h2{font-size:40px;line-height:1.1;margin-top:6px}
+.sec-head p{font-size:21px;line-height:1.38;color:var(--muted);margin-top:12px}
+.on-dark .sec-head p{color:var(--on-dark-muted)}
+
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.role{background:var(--tile-2);border-radius:18px;padding:32px;min-width:0}
+.role h3{font-size:24px;line-height:1.17}
+.role .who{font-size:14px;color:var(--on-dark-muted);margin-top:4px}
+.steps{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:20px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:12px;counter-increment:s}
+.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:#3a3a3c;color:#fff;font-size:14px;font-weight:600;display:grid;place-items:center;margin-top:1px}
+.steps b{display:block;font-weight:600}
+.steps p{color:var(--on-dark-muted);font-size:15px;margin-top:2px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:9999px;margin-left:6px;vertical-align:2px;letter-spacing:0}
+.tag.rec{background:#0a3d1c;color:#4cd471}
+.tag.no{background:#3a2a10;color:#ffb050}
+.rule{margin-top:20px;background:var(--tile-2);border-radius:18px;padding:28px 32px;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.rule .big{font-family:var(--display);font-size:48px;font-weight:600;line-height:1;color:var(--link-dark);font-variant-numeric:tabular-nums}
+.rule div{flex:1;min-width:220px}
+.rule p{color:var(--on-dark-muted);font-size:15px;margin-top:4px}
+
+/* board */
+.board{background:var(--parchment)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chipbtn{border:1px solid var(--hairline);background:var(--canvas);border-radius:9999px;padding:8px 16px;font-size:14px;cursor:pointer;letter-spacing:-.224px}
+.chipbtn[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--primary-focus);border-color:var(--primary-focus);color:var(--primary)}
+.chipbtn .n{color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
+.search{border:1px solid var(--hairline);background:var(--canvas);border-radius:9999px;padding:0 18px;height:40px;font-size:15px;width:240px;max-width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.card{background:var(--canvas);border:1px solid var(--hairline);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:14px;min-width:0;cursor:pointer;text-align:left;width:100%}
+.card:active{transform:scale(.99)}
+.card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:9999px;letter-spacing:0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-open{background:var(--ok-bg);color:var(--ok)}
+.st-pick{background:var(--warn-bg);color:var(--warn)}
+.st-closed{background:var(--done-bg);color:var(--done)}
+.when{font-size:12px;color:var(--muted);letter-spacing:-.12px}
+.card h3{font-size:21px;line-height:1.19;letter-spacing:.231px;overflow-wrap:anywhere}
+.leader{font-size:14px;color:var(--muted);letter-spacing:-.224px;margin-top:4px}
+.desc{font-size:15px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.styles{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:12px;padding:4px 10px;border-radius:9999px;background:var(--parchment);color:var(--ink);letter-spacing:-.12px;overflow-wrap:anywhere}
+.people{border-top:1px solid var(--divider);padding-top:14px;display:flex;flex-direction:column;gap:8px;margin-top:auto}
+.people-h{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.people-h b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.names{display:flex;flex-wrap:wrap;gap:6px;min-height:24px}
+.name{font-size:13px;padding:3px 10px;border-radius:9999px;background:var(--chip);letter-spacing:-.12px}
+.name.sel{background:var(--primary);color:#fff}
+.name.team{background:transparent;box-shadow:inset 0 0 0 1px var(--hairline)}
+.none{font-size:13px;color:var(--muted-48)}
+.empty{grid-column:1/-1;text-align:center;padding:64px 16px;background:var(--canvas);border-radius:18px;border:1px solid var(--hairline)}
+.empty h3{font-size:24px}
+.empty p{color:var(--muted);margin:8px 0 20px}
+
+/* dialog */
+dialog{border:0;padding:0;border-radius:18px;background:var(--canvas);color:var(--ink);width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 48px)}
+dialog::backdrop{background:var(--scrim);backdrop-filter:blur(4px)}
+.dlg{display:flex;flex-direction:column;max-height:calc(100dvh - 48px)}
+.dlg-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:24px 24px 12px}
+.dlg-h h2{font-size:28px;line-height:1.14}
+.dlg-h .sub{font-size:14px;color:var(--muted);margin-top:4px}
+.x{width:36px;height:36px;border-radius:50%;border:0;background:var(--chip);cursor:pointer;font-size:18px;flex:none;color:var(--ink)}
+.dlg-b{padding:8px 24px 24px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.dlg-f{padding:16px 24px 24px;border-top:1px solid var(--divider);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:14px;font-weight:600;letter-spacing:-.224px}
+.req{color:#d70015;margin-left:2px}
+.hint{font-size:12px;color:var(--muted);letter-spacing:-.12px}
+.field input,.field textarea{border:1px solid var(--hairline);background:var(--pearl);border-radius:11px;padding:11px 14px;font-size:16px;width:100%}
+.field textarea{min-height:96px;resize:vertical;line-height:1.47}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--primary-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-focus) 25%,transparent)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:11px;background:var(--parchment);font-size:15px;cursor:pointer}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--primary)}
+.alert{font-size:14px;padding:12px 14px;border-radius:11px;background:var(--warn-bg);color:var(--warn)}
+.err{font-size:14px;color:#d70015}
+.dsec h4{margin:0 0 8px;font-size:14px;color:var(--muted);font-weight:600}
+.dsec p{white-space:pre-wrap;overflow-wrap:anywhere}
+.alist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--hairline);border-radius:11px;overflow:hidden}
+.alist li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-top:1px solid var(--divider)}
+.alist li:first-child{border-top:0}
+.alist .who b{font-weight:600}
+.alist .who span{display:block;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.alist .acts{display:flex;gap:6px;flex:none}
+.timer{font-variant-numeric:tabular-nums}
+
+.banner{background:var(--warn-bg);color:var(--warn);font-size:13px;text-align:center;padding:8px 16px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--canvas);padding:12px 20px;border-radius:9999px;font-size:14px;z-index:50;max-width:calc(100vw - 32px)}
+
+footer{background:var(--parchment);color:var(--muted);font-size:12px;letter-spacing:-.12px;padding-block:32px 48px;border-top:1px solid var(--hairline)}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media (max-width:833px){.gnav .links{display:none}.roles{grid-template-columns:1fr}.subnav .right a{display:none}}
+@media (max-width:640px){
+  .hero h1{font-size:34px}.hero .lead{font-size:21px}.sec-head h2{font-size:28px}
+  .tile{padding-block:48px}.hero{padding-block:48px}.stats{gap:28px}.stat b{font-size:32px}
+  .role,.rule{padding:24px}.grid{grid-template-columns:1fr}.search{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="banner" class="banner" hidden>미리보기 모드 · 신청 내용이 이 브라우저에만 저장됩니다</div>
+
+<nav class="gnav" aria-label="전체">
+  <div class="wrap">
+    <a class="brand" href="#top">자유곡</a>
+    <div class="links">
+      <a href="#guide">신청 방법</a>
+      <a href="#board">모집 보드</a>
+      <a href="#rule">중복 원칙</a>
+    </div>
+    <span id="me-label"></span>
+  </div>
+</nav>
+<div class="subnav">
+  <div class="wrap">
+    <span class="name">자유곡 모집</span>
+    <div class="right">
+      <a href="#guide">신청 방법</a>
+      <a href="#board">모집 보드</a>
+      <button class="btn sm" data-act="new">곡 등록</button>
+    </div>
+  </div>
+</div>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <h1>이번 학기 자유곡.</h1>
+      <p class="lead">비트를 올리고, 함께할 플레이어를 모으세요.</p>
+      <div class="ctas">
+        <button class="btn" data-act="new">곡 등록하기</button>
+        <a class="btn ghost" href="#board">모집 중인 곡 보기</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="s-open">0</b><span>모집 중</span></div>
+        <div class="stat"><b id="s-songs">0</b><span>등록된 곡</span></div>
+        <div class="stat"><b id="s-apps">0</b><span>참여 신청</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tile on-dark" id="guide">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">신청 방법</p>
+        <h2>곡장은 올리고, 플레이어는 누르면 끝.</h2>
+        <p>구글폼과 톡방 공지를 이 페이지 하나로 합쳤습니다.</p>
+      </div>
+      <div class="roles">
+        <article class="role">
+          <h3>곡장</h3>
+          <p class="who">곡을 올리고 팀을 꾸리는 사람</p>
+          <ol class="steps">
+            <li><div><b>비트 정하기</b><p>가능하면 내 목소리 파트도 녹음. 없으면 비트만 있어도 됩니다.</p></div></li>
+            <li><div><b>곡 파일을 임원진에게 전송</b><p>등록 전에 먼저 보내 주세요.</p></div></li>
+            <li><div><b>이 페이지에서 곡 등록</b><span class="tag rec">추천</span><p>원하는 플레이어 스타일을 적고 등록 → 카드 화면을 캡처해 자유곡 톡방에 공지.</p><p>원하는 플레이어와 개인 연락 후 팀원으로 적어 등록해도 됩니다.<span class="tag no">비추</span></p></div></li>
+            <li><div><b>2시간 동안 자유 신청</b><p>선착순 아님. 등록 후 2시간은 누구나 신청 가능합니다.</p></div></li>
+            <li><div><b>선정 후 연락</b><p>2시간이 지나 신청자가 넘치면 추첨·간택으로 재량껏 선정하고, 당첨자에게 개별 연락.</p></div></li>
+            <li><div><b>마감 처리</b><p>인원이 다 차면 카드에서 <b style="display:inline">마감</b>을 누르고, 자유곡 공지방에 “마감입니다!”</p></div></li>
+          </ol>
+        </article>
+        <article class="role">
+          <h3>플레이어</h3>
+          <p class="who">곡에 참여하고 싶은 사람</p>
+          <ol class="steps">
+            <li><div><b>모집 보드에서 곡 고르기</b><p>곡 설명과 원하는 플레이어 스타일(장르, 보컬·랩·벌스·훅, 마디 수 등)을 확인.</p></div></li>
+            <li><div><b>참여 신청 누르기</b><p>이름과 하고 싶은 파트를 적으면 곡장 카드에 바로 이름이 올라갑니다.</p></div></li>
+            <li><div><b>곡장 연락 기다리기</b><p>2시간 신청 기간이 끝난 뒤 곡장이 선정해 연락합니다. 선정되면 이름이 파란색으로 바뀝니다.</p></div></li>
+          </ol>
+          <p style="margin-top:28px"><a class="link" href="#board">모집 중인 곡 보기 ›</a></p>
+        </article>
+      </div>
+      <div class="rule" id="rule">
+        <span class="big">3곡</span>
+        <div>
+          <b>한 학기에 같은 사람과 3곡 이상 겹치지 않기</b>
+          <p>다양한 사람과 작업하는 게 원칙입니다. 신청할 때 이미 함께한 곡 수를 자동으로 알려 드립니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tile board" id="board">
+    <div class="wrap wide">
+      <div class="sec-head">
+        <p class="eyebrow">모집 보드</p>
+        <h2>함께할 곡을 찾아보세요.</h2>
+      </div>
+      <div class="toolbar">
+        <div class="chips" role="group" aria-label="상태 필터">
+          <button class="chipbtn" data-filter="all" aria-pressed="true">전체<span class="n" id="n-all">0</span></button>
+          <button class="chipbtn" data-filter="open" aria-pressed="false">모집 중<span class="n" id="n-open">0</span></button>
+          <button class="chipbtn" data-filter="pick" aria-pressed="false">선정 중<span class="n" id="n-pick">0</span></button>
+          <button class="chipbtn" data-filter="closed" aria-pressed="false">마감<span class="n" id="n-closed">0</span></button>
+        </div>
+        <input class="search" id="q" type="search" placeholder="곡, 이름, 장르 검색" aria-label="검색">
+      </div>
+      <div class="grid" id="grid">
+        <div class="empty"><h3>불러오는 중…</h3><p>등록된 자유곡을 가져오고 있습니다.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>자유곡 모집 보드 · 신청 기간은 등록 후 2시간</span>
+    <span>문의는 임원진에게</span>
+  </div>
+</footer>
+
+<!-- 곡 등록 -->
+<dialog id="dlg-new" aria-labelledby="new-t">
+  <form class="dlg" id="f-new" novalidate>
+    <div class="dlg-h"><div><h2 id="new-t">곡 등록</h2><p class="sub">등록 즉시 2시간 자유 신청이 시작됩니다.</p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
+    <div class="dlg-b">
+      <div class="field"><label for="n-leader">자유곡 신청자 이름<span class="req">*</span></label><input id="n-leader" name="leader" maxlength="20" autocomplete="name" required></div>
+      <div class="field"><label for="n-title">곡 제목 (가제)</label><input id="n-title" name="title" maxlength="40" placeholder="비워두면 ‘○○의 자유곡’"></div>
+      <div class="field"><label for="n-team">이미 정한 팀원</label><input id="n-team" name="team" maxlength="80" placeholder="쉼표로 구분 · 예) 김민수, 박지원"><span class="hint">팀이 정해져 있다면 적어주세요.</span></div>
+      <div class="field"><label for="n-desc">곡 설명<span class="req">*</span></label><textarea id="n-desc" name="desc" maxlength="600" required placeholder="분위기, 레퍼런스, BPM 등"></textarea></div>
+      <div class="field"><label for="n-style">원하는 플레이어 스타일</label><textarea id="n-style" name="style" maxlength="300" placeholder="쉼표로 구분 · 예) 붐뱁, 2명, 랩 벌스 16마디, 보컬 훅"></textarea><span class="hint">주 장르, 인원수, 보컬, 랩, 벌스, 훅, 구성, 마디수 등</span></div>
+      <label class="check"><input type="checkbox" id="n-sent" name="sent" required><span>곡 파일을 임원진에게 보냈습니다.<span class="req">*</span></span></label>
+      <p class="err" id="new-err" hidden></p>
+    </div>
+    <div class="dlg-f"><button type="button" class="btn quiet" data-close>취소</button><button class="btn" type="submit">등록하기</button></div>
+  </form>
+</dialog>
+
+<!-- 참여 신청 -->
+<dialog id="dlg-apply" aria-labelledby="ap-t">
+  <form class="dlg" id="f-apply" novalidate>
+    <div class="dlg-h"><div><h2 id="ap-t">참여 신청</h2><p class="sub" id="ap-sub"></p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
+    <div class="dlg-b">
+      <div class="field"><label for="a-name">이름<span class="req">*</span></label><input id="a-name" name="name" maxlength="20" autocomplete="name" required></div>
+      <p class="alert" id="ap-overlap" hidden></p>
+      <div class="field"><label for="a-part">하고 싶은 파트</label><input id="a-part" name="part" maxlength="40" placeholder="예) 2벌스 랩, 훅 보컬"></div>
+      <div class="field"><label for="a-note">곡장에게 한마디</label><textarea id="a-note" name="note" maxlength="200" placeholder="연락처나 레퍼런스 링크 등"></textarea></div>
+      <p class="err" id="ap-err" hidden></p>
+    </div>
+    <div class="dlg-f"><button type="button" class="btn quiet" data-close>취소</button><button class="btn" type="submit">신청하기</button></div>
+  </form>
+</dialog>
+
+<!-- 상세 -->
+<dialog id="dlg-detail" aria-labelledby="d-t">
+  <div class="dlg">
+    <div class="dlg-h"><div><h2 id="d-t"></h2><p class="sub" id="d-sub"></p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
+    <div class="dlg-b" id="d-body"></div>
+    <div class="dlg-f" id="d-foot"></div>
+  </div>
+</dialog>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  const WINDOW_MS = 2 * 60 * 60 * 1000;
+  const $ = (s, r = document) => r.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const split = s => (s || "").split(/[,，、\n]/).map(x => x.trim()).filter(Boolean);
+  const norm = s => (s || "").replace(/\s+/g, "").toLowerCase();
+
+  let songs = [], apps = [], myId = null, canEdit = false, filter = "all", query = "", detailId = null, applyId = null;
+
+  /* ---------- 저장소: db 우선, 없으면 브라우저 저장 ---------- */
+  const store = {
+    mode: "loading",
+    subs: {},
+    async init() {
+      let db = null, user = null;
+      try { [db, user] = await Promise.all([window.claude?.use?.("db") ?? null, window.claude?.use?.("user") ?? null]); } catch {}
+      if (user) { try { myId = await user.id(); canEdit = !!(await user.canEdit()); } catch {} }
+      if (db) { this.mode = "db"; this.db = db; }
+      else {
+        this.mode = "local"; $("#banner").hidden = false;
+        try { myId = localStorage.getItem("jy-me") || ("local-" + Math.random().toString(36).slice(2)); localStorage.setItem("jy-me", myId); } catch { myId = "local"; }
+      }
+    },
+    watch(coll, cb) {
+      if (this.mode === "db") {
+        this.db.collection(coll).limit(1000).onSnapshot(
+          snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+          e => toast("불러오기 실패: 새로고침해 주세요")
+        );
+      } else { this.subs[coll] = cb; cb(this._load(coll)); }
+    },
+    _load(coll) { try { return JSON.parse(localStorage.getItem("jy-" + coll) || "[]"); } catch { return []; } },
+    _save(coll, rows) { try { localStorage.setItem("jy-" + coll, JSON.stringify(rows)); } catch {} this.subs[coll]?.(rows); },
+    async set(coll, id, data) {
+      if (this.mode === "db") return this.db.collection(coll).doc(id).set(data);
+      const rows = this._load(coll).filter(r => r.id !== id); rows.push({ id, ...data }); this._save(coll, rows);
+    },
+    async update(coll, id, data) {
+      if (this.mode === "db") return this.db.collection(coll).doc(id).update(data);
+      this._save(coll, this._load(coll).map(r => r.id === id ? { ...r, ...data } : r));
+    },
+    async remove(coll, id) {
+      if (this.mode === "db") return this.db.collection(coll).doc(id).delete();
+      this._save(coll, this._load(coll).filter(r => r.id !== id));
+    }
+  };
+  const newId = () => Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+
+  /* ---------- 파생 상태 ---------- */
+  const statusOf = s => s.closed ? "closed" : (Date.now() - s.createdAt >= WINDOW_MS ? "pick" : "open");
+  const appsOf = id => apps.filter(a => a.songId === id).sort((a, b) => a.createdAt - b.createdAt);
+  const titleOf = s => s.title || `${s.leader}의 자유곡`;
+  const isMine = s => canEdit || (myId && s.by === myId);
+  const left = s => {
+    const ms = Math.max(0, s.createdAt + WINDOW_MS - Date.now());
+    const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000), sec = Math.floor(ms % 60000 / 1000);
+    return h ? `${h}시간 ${m}분 남음` : m ? `${m}분 ${String(sec).padStart(2, "0")}초 남음` : `${sec}초 남음`;
+  };
+  const statusLabel = s => ({ open: "모집 중 · " + left(s), pick: "선정 중", closed: "마감" })[statusOf(s)];
+  const ago = t => {
+    const m = Math.round((Date.now() - t) / 60000);
+    if (m < 1) return "방금"; if (m < 60) return `${m}분 전`;
+    const h = Math.round(m / 60); if (h < 24) return `${h}시간 전`;
+    const d = new Date(t); return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  };
+  // 곡 멤버 = 곡장 + 팀원 + 선정된 신청자
+  const membersOf = s => [s.leader, ...split(s.team), ...appsOf(s.id).filter(a => a.selected).map(a => a.name)].map(norm).filter(Boolean);
+  function overlapFor(name, song) {
+    const me = norm(name); if (!me) return [];
+    const targets = [...new Set(membersOf(song))].filter(x => x !== me);
+    const raw = new Map([[norm(song.leader), song.leader], ...split(song.team).map(t => [norm(t), t])]);
+    return targets.map(t => {
+      const n = songs.filter(s => s.id !== song.id && (() => { const m = membersOf(s); return m.includes(me) && m.includes(t); })()).length;
+      return { name: raw.get(t) || t, n };
+    }).filter(x => x.n >= 2).sort((a, b) => b.n - a.n);
+  }
+
+  /* ---------- 렌더 ---------- */
+  function render() {
+    const counts = { all: songs.length, open: 0, pick: 0, closed: 0 };
+    songs.forEach(s => counts[statusOf(s)]++);
+    Object.entries(counts).forEach(([k, v]) => $("#n-" + k).textContent = v);
+    $("#s-open").textContent = counts.open;
+    $("#s-songs").textContent = songs.length;
+    $("#s-apps").textContent = apps.filter(a => songs.some(s => s.id === a.songId)).length;
+
+    const order = { open: 0, pick: 1, closed: 2 };
+    const q = norm(query);
+    const list = songs
+      .filter(s => filter === "all" || statusOf(s) === filter)
+      .filter(s => !q || norm([s.title, s.leader, s.team, s.desc, s.style, ...appsOf(s.id).map(a => a.name)].join(" ")).includes(q))
+      .sort((a, b) => order[statusOf(a)] - order[statusOf(b)] || b.createdAt - a.createdAt);
+
+    const grid = $("#grid"); grid.replaceChildren();
+    if (!list.length) {
+      const e = el("div", "empty");
+      if (!songs.length) {
+        e.append(el("h3", null, "아직 등록된 곡이 없습니다."), el("p", null, "첫 자유곡을 올리면 여기에 카드로 모입니다."));
+        const b = el("button", "btn", "곡 등록하기"); b.dataset.act = "new"; e.append(b);
+      } else e.append(el("h3", null, "조건에 맞는 곡이 없습니다."), el("p", null, "필터나 검색어를 바꿔 보세요."));
+      grid.append(e); return;
+    }
+    list.forEach(s => grid.append(card(s)));
+    if (detailId) fillDetail();
+  }
+
+  function card(s) {
+    const st = statusOf(s), list = appsOf(s.id);
+    const c = el("button", "card"); c.type = "button"; c.dataset.open = s.id;
+    const top = el("div", "card-top");
+    const badge = el("span", "status st-" + st, statusLabel(s)); badge.dataset.timer = s.id;
+    top.append(badge, el("span", "when", ago(s.createdAt)));
+    const head = el("div"); head.append(el("h3", null, titleOf(s)), el("p", "leader", "곡장 " + s.leader + (split(s.team).length ? ` · 팀원 ${split(s.team).length}명` : "")));
+    c.append(top, head, el("p", "desc", s.desc));
+    const tags = split(s.style);
+    if (tags.length) { const w = el("div", "styles"); tags.slice(0, 6).forEach(t => w.append(el("span", "pill", t))); c.append(w); }
+    const p = el("div", "people");
+    const h = el("div", "people-h"); const hl = el("span"); hl.append("신청자 ", el("b", null, String(list.length)), "명");
+    const sel = list.filter(a => a.selected).length;
+    h.append(hl, el("span", null, sel ? `선정 ${sel}명` : st === "closed" ? "" : "눌러서 신청"));
+    const names = el("div", "names");
+    split(s.team).forEach(t => names.append(el("span", "name team", t)));
+    list.forEach(a => names.append(el("span", "name" + (a.selected ? " sel" : ""), a.name)));
+    if (!names.children.length) names.append(el("span", "none", "첫 신청자가 되어 보세요"));
+    p.append(h, names); c.append(p);
+    return c;
+  }
+
+  function fillDetail() {
+    const s = songs.find(x => x.id === detailId);
+    const dlg = $("#dlg-detail");
+    if (!s) { if (dlg.open) dlg.close(); detailId = null; return; }
+    const st = statusOf(s), list = appsOf(s.id), mine = isMine(s);
+    $("#d-t").textContent = titleOf(s);
+    $("#d-sub").textContent = `곡장 ${s.leader} · ${ago(s.createdAt)} 등록`;
+    const b = $("#d-body"); b.replaceChildren();
+    const status = el("span", "status st-" + st, statusLabel(s)); status.dataset.timer = s.id;
+    const sw = el("div"); sw.append(status); b.append(sw);
+    if (st === "pick" && mine) b.append(el("p", "alert", "2시간이 지났습니다. 신청자가 많으면 추첨·간택으로 선정하고 ‘선정’을 눌러 표시하세요. 인원이 다 차면 마감하세요."));
+    const sec = (t, body) => { const d = el("div", "dsec"); d.append(el("h4", null, t)); d.append(typeof body === "string" ? el("p", null, body) : body); b.append(d); };
+    sec("곡 설명", s.desc);
+    if (s.style) { const w = el("div", "styles"); split(s.style).forEach(t => w.append(el("span", "pill", t))); sec("원하는 플레이어 스타일", w); }
+    if (split(s.team).length) { const w = el("div", "names"); split(s.team).forEach(t => w.append(el("span", "name team", t))); sec("이미 정한 팀원", w); }
+    const ul = el("ul", "alist");
+    if (!list.length) { const li = el("li"); li.append(el("span", "none", "아직 신청자가 없습니다.")); ul.append(li); }
+    list.forEach(a => {
+      const li = el("li"), who = el("div", "who");
+      const nm = el("b", null, a.name); who.append(nm);
+      if (a.selected) { who.append(" "); who.append(el("span", "name sel", "선정")); who.lastChild.style.display = "inline"; }
+      const extra = [a.part, a.note].filter(Boolean).join(" · ");
+      if (extra) who.append(el("span", null, extra));
+      who.append(el("span", null, ago(a.createdAt)));
+      const acts = el("div", "acts");
+      if (mine) { const t = el("button", "btn sm " + (a.selected ? "quiet" : "ghost"), a.selected ? "선정 취소" : "선정"); t.dataset.sel = a.id; acts.append(t); }
+      if (mine || a.by === myId) { const r = el("button", "btn sm quiet", a.by === myId && !mine ? "신청 취소" : "삭제"); r.dataset.delapp = a.id; acts.append(r); }
+      li.append(who, acts); ul.append(li);
+    });
+    sec(`신청자 ${list.length}명`, ul);
+
+    const f = $("#d-foot"); f.replaceChildren();
+    if (mine) {
+      const del = el("button", "btn danger", "곡 삭제"); del.dataset.delsong = s.id; f.append(del);
+      const cl = el("button", "btn quiet", s.closed ? "모집 다시 열기" : "마감하기"); cl.dataset.close_song = s.id; f.append(cl);
+    }
+    if (!s.closed) { const ap = el("button", "btn", "참여 신청"); ap.dataset.apply = s.id; f.append(ap); }
+    else if (!mine) f.append(el("span", "hint", "모집이 마감된 곡입니다."));
+  }
+
+  // 남은 시간 갱신 (상태 전환 시 전체 렌더)
+  setInterval(() => {
+    let flip = false;
+    document.querySelectorAll("[data-timer]").forEach(b => {
+      const s = songs.find(x => x.id === b.dataset.timer); if (!s) return;
+      const st = statusOf(s);
+      if (!b.classList.contains("st-" + st)) flip = true; else b.textContent = statusLabel(s);
+    });
+    if (flip) render();
+  }, 1000);
+
+  /* ---------- 상호작용 ---------- */
+  let toastT;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
+  const pending = new Set();
+  async function guarded(key, fn, okMsg) {
+    if (pending.has(key)) return; pending.add(key);
+    try { await fn(); if (okMsg) toast(okMsg); }
+    catch (e) { toast(e?.code === "invalid_argument" ? "권한이 없어 저장하지 못했습니다. 곡장 또는 임원진에게 편집 권한을 요청하세요." : "저장하지 못했습니다. 잠시 후 다시 시도해 주세요."); throw e; }
+    finally { pending.delete(key); }
+  }
+  const remember = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  const recall = k => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
+
+  function openNew() {
+    const f = $("#f-new"); f.reset(); $("#new-err").hidden = true;
+    $("#n-leader").value = recall("jy-name");
+    $("#dlg-new").showModal(); ($("#n-leader").value ? $("#n-title") : $("#n-leader")).focus();
+  }
+  function openApply(id) {
+    const s = songs.find(x => x.id === id); if (!s) return;
+    applyId = id; $("#f-apply").reset(); $("#ap-err").hidden = true;
+    $("#ap-sub").textContent = `${titleOf(s)} · 곡장 ${s.leader}`;
+    $("#a-name").value = recall("jy-name"); checkOverlap();
+    $("#dlg-apply").showModal(); $("#a-name").focus();
+  }
+  function checkOverlap() {
+    const s = songs.find(x => x.id === applyId), o = $("#ap-overlap");
+    const hits = s ? overlapFor($("#a-name").value, s) : [];
+    if (!hits.length) { o.hidden = true; return; }
+    o.hidden = false;
+    o.textContent = hits.map(h => `${h.name}님과 이번 학기 이미 ${h.n}곡`).join(", ") + (hits[0].n >= 3 ? " — 3곡 이상 겹쳤습니다. 다른 곡을 우선 고려해 주세요." : " 함께했습니다. 이 곡까지 하면 3곡입니다.");
+  }
+  function openDetail(id) { detailId = id; fillDetail(); const d = $("#dlg-detail"); if (!d.open) d.showModal(); }
+
+  document.addEventListener("click", async e => {
+    const t = e.target.closest("button,[data-close]"); if (!t) return;
+    if (t.dataset.act === "new") return openNew();
+    if ("close" in t.dataset) return t.closest("dialog").close();
+    if (t.dataset.filter) {
+      filter = t.dataset.filter;
+      document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", b === t));
+      return render();
+    }
+    if (t.dataset.open) return openDetail(t.dataset.open);
+    if (t.dataset.apply) { $("#dlg-detail").close(); return openApply(t.dataset.apply); }
+    if (t.dataset.sel) { const a = apps.find(x => x.id === t.dataset.sel); if (a) guarded("sel" + a.id, () => store.update("applicants", a.id, { selected: !a.selected }), a.selected ? "선정을 취소했습니다" : `${a.name}님을 선정했습니다`).catch(() => {}); return; }
+    if (t.dataset.delapp) {
+      if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "한 번 더 누르면 삭제"; return; }
+      return guarded("da" + t.dataset.delapp, () => store.remove("applicants", t.dataset.delapp), "삭제했습니다").catch(() => {});
+    }
+    if (t.dataset.close_song) { const s = songs.find(x => x.id === t.dataset.close_song); if (s) guarded("cl" + s.id, () => store.update("songs", s.id, { closed: !s.closed }), s.closed ? "모집을 다시 열었습니다" : "마감했습니다. 공지방에 “마감입니다!”를 남겨 주세요").catch(() => {}); return; }
+    if (t.dataset.delsong) {
+      if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "한 번 더 누르면 곡 삭제"; return; }
+      const id = t.dataset.delsong;
+      try {
+        await guarded("ds" + id, async () => { for (const a of appsOf(id)) await store.remove("applicants", a.id); await store.remove("songs", id); }, "곡을 삭제했습니다");
+        $("#dlg-detail").close();
+      } catch {}
+    }
+  });
+  $("#dlg-detail").addEventListener("close", () => detailId = null);
+  $("#q").addEventListener("input", e => { query = e.target.value; render(); });
+  $("#a-name").addEventListener("input", checkOverlap);
+
+  $("#f-new").addEventListener("submit", async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target), err = $("#new-err");
+    const v = k => (fd.get(k) || "").toString().trim();
+    const miss = [!v("leader") && "이름", !v("desc") && "곡 설명", !fd.get("sent") && "곡 파일 전송 확인"].filter(Boolean);
+    if (miss.length) { err.textContent = miss.join(", ") + "을(를) 채워 주세요."; err.hidden = false; return; }
+    const data = { leader: v("leader"), title: v("title"), team: v("team"), desc: v("desc"), style: v("style"), sentFile: true, closed: false, createdAt: Date.now(), by: myId || "" };
+    try {
+      await guarded("new", () => store.set("songs", newId(), data), "등록했습니다. 카드를 캡처해 톡방에 공지하세요");
+      remember("jy-name", data.leader); $("#dlg-new").close();
+      filter = "all"; document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", b.dataset.filter === "all"));
+      location.hash = "board";
+    } catch {}
+  });
+
+  $("#f-apply").addEventListener("submit", async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target), err = $("#ap-err");
+    const name = (fd.get("name") || "").toString().trim();
+    const s = songs.find(x => x.id === applyId);
+    if (!s) { err.textContent = "곡이 삭제되었습니다."; err.hidden = false; return; }
+    if (!name) { err.textContent = "이름을 적어 주세요."; err.hidden = false; return; }
+    if (s.closed) { err.textContent = "방금 마감된 곡입니다."; err.hidden = false; return; }
+    if (appsOf(s.id).some(a => norm(a.name) === norm(name))) { err.textContent = "이미 같은 이름으로 신청했습니다."; err.hidden = false; return; }
+    const data = { songId: s.id, name, part: (fd.get("part") || "").toString().trim(), note: (fd.get("note") || "").toString().trim(), selected: false, createdAt: Date.now(), by: myId || "" };
+    try {
+      await guarded("ap", () => store.set("applicants", newId(), data), `신청했습니다. ${s.leader}님의 연락을 기다려 주세요`);
+      remember("jy-name", name); $("#dlg-apply").close();
+    } catch {}
+  });
+
+  /* ---------- 시작 ---------- */
+  store.init().then(() => {
+    store.watch("songs", rows => { songs = rows; render(); });
+    store.watch("applicants", rows => { apps = rows; render(); });
+  });
+})();
+</script>
