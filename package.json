@@ -1,5 +1,5 @@
 {
-  "name": "terra-freetrack-api",
+  "name": "terra-freetrack",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,4 +1,4 @@
-// TERRA 자유곡 보드 API — Cloudflare Worker + D1.
+// TERRA 자유곡 보드 — Cloudflare Worker + D1. 화면은 public/ (정적 자산), /api/* 만 여기서 처리.
 //
 // 로그인 없음. 브라우저가 처음 열 때 만든 임의 토큰을 X-Owner 헤더로 보내고,
 // 서버는 그 SHA-256을 owner로 저장한다. 공개 목록에는 owner(해시)만 나가므로
@@ -9,16 +9,14 @@ const LIMITS = { leader: 20, title: 40, team: 80, descr: 600, style: 300, link: 
 
 export default {
   async fetch(req, env) {
-    const cors = corsHeaders(req, env);
-    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+    const url = new URL(req.url);
+    if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(req);
     try {
-      const res = await route(req, env);
-      for (const [k, v] of Object.entries(cors)) res.headers.set(k, v);
-      return res;
+      return await route(req, env, url);
     } catch (e) {
-      if (e instanceof HttpError) return json({ error: e.message }, e.status, cors);
+      if (e instanceof HttpError) return json({ error: e.message }, e.status);
       console.error(e);
-      return json({ error: "server_error" }, 500, cors);
+      return json({ error: "server_error" }, 500);
     }
   },
 };
@@ -27,16 +25,16 @@ class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 
-async function route(req, env) {
-  const url = new URL(req.url);
+async function route(req, env, url) {
   const parts = url.pathname.replace(/\/+$/, "").split("/").filter(Boolean); // ["api", "songs", id]
   if (parts[0] !== "api") throw new HttpError(404, "not_found");
   const [, kind, id] = parts;
 
   if (req.method === "GET" && kind === "state") return json(await state(env));
+  if (req.method === "GET" && kind === "admin") return json({ admin: (await caller(req, env)).admin });
 
-  // 쓰기는 허용된 출처에서만
-  if (!originAllowed(req, env)) throw new HttpError(403, "origin_not_allowed");
+  // 쓰기는 이 사이트에서 보낸 요청만 (다른 사이트가 몰래 보내는 요청 차단)
+  if (req.headers.get("Origin") !== url.origin) throw new HttpError(403, "origin_not_allowed");
   const who = await caller(req, env);
 
   if (kind === "songs" && req.method === "POST" && !id) return json(await createSong(env, who, await body(req)), 201);
@@ -45,7 +43,6 @@ async function route(req, env) {
   if (kind === "applicants" && req.method === "POST" && !id) return json(await createApplicant(env, who, await body(req)), 201);
   if (kind === "applicants" && req.method === "PATCH" && id) return json(await updateApplicant(env, who, id, await body(req)));
   if (kind === "applicants" && req.method === "DELETE" && id) return json(await deleteApplicant(env, who, id));
-  if (kind === "admin" && req.method === "GET") return json({ admin: who.admin });
   throw new HttpError(404, "not_found");
 }
 
@@ -198,30 +195,9 @@ async function sha256(s) {
   return [...new Uint8Array(d)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 
-function allowedOrigins(env) {
-  return (env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
-}
-
-function originAllowed(req, env) {
-  const o = req.headers.get("Origin");
-  return !!o && allowedOrigins(env).includes(o);
-}
-
-function corsHeaders(req, env) {
-  const o = req.headers.get("Origin");
-  const h = { "Vary": "Origin" };
-  if (o && allowedOrigins(env).includes(o)) {
-    h["Access-Control-Allow-Origin"] = o;
-    h["Access-Control-Allow-Methods"] = "GET, POST, PATCH, DELETE, OPTIONS";
-    h["Access-Control-Allow-Headers"] = "Content-Type, X-Owner, X-Admin-Key";
-    h["Access-Control-Max-Age"] = "86400";
-  }
-  return h;
-}
-
-function json(data, status = 200, headers = {}) {
+function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...headers },
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
 }

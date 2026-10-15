@@ -237,13 +237,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::backdrop{transition:none!important;animation:none!important}}
 </style>
-<script src="config.js"></script>
 </head>
 <body>
 
 <div class="page-aura" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
-<div id="banner" class="banner" hidden>미리보기 모드 · 서버 주소가 없어 신청 내용이 이 브라우저에만 저장됩니다</div>
+<div id="banner" class="banner" hidden>미리보기 모드 · 신청 내용이 이 브라우저에만 저장됩니다</div>
 
 <header class="subnav">
   <div class="wrap">
@@ -378,8 +377,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
   let songs = [], apps = [], myId = null, canEdit = false, filter = "all", query = "", detailId = null, applyId = null;
 
-  /* ---------- 저장소: Cloudflare API, 주소가 없으면 브라우저 저장(미리보기) ---------- */
-  const API = (window.TERRA_API || "").replace(/\/+$/, "");
+  /* ---------- 저장소: 같은 주소의 /api, 서버 없이 파일로 열면 브라우저 저장(미리보기) ---------- */
+  const API = location.protocol.startsWith("http") && !/[?&]preview\b/.test(location.search) ? "" : null;
   const POLL_MS = 5000;
   const ERR = {
     not_owner: "곡장(또는 임원진)만 할 수 있습니다.",
@@ -387,7 +386,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     duplicate_name: "이미 같은 이름으로 신청했습니다.",
     sent_file_required: "곡 파일 전송을 확인해 주세요.",
     link_invalid: "음원 링크 주소를 확인해 주세요.",
-    origin_not_allowed: "이 주소에서는 저장할 수 없습니다. 임원진에게 알려 주세요.",
+    origin_not_allowed: "저장할 수 없는 요청입니다. 새로고침 후 다시 시도해 주세요.",
     song_not_found: "삭제된 곡입니다.",
     applicant_not_found: "이미 취소된 신청입니다.",
   };
@@ -411,7 +410,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     subs: {},
     token: "",
     async init() {
-      if (API) {
+      if (API !== null) {
         this.mode = "api"; this.token = ownerToken(); myId = await sha256(this.token);
         if (ls.get("terra-admin")) canEdit = await this.checkAdmin(ls.get("terra-admin"));
       } else {

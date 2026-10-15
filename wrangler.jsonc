@@ -1,10 +1,12 @@
 {
-  "name": "terra-freetrack-api",
+  // TERRA 자유곡 보드 — 화면(public/)과 API(src/)를 Worker 하나로 서비스
+  "name": "terra-freetrack",
   "main": "src/index.js",
   "compatibility_date": "2026-09-01",
-  "vars": {
-    // 이 주소에서 온 요청만 쓰기를 허용 (GitHub Pages 주소). 쉼표로 여러 개.
-    "ALLOWED_ORIGINS": "https://shinehyeuk-pixel.github.io,http://localhost:8765"
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
   },
   // 임원진 관리 키는 비밀값: `npx wrangler secret put ADMIN_KEY`
   "d1_databases": [
