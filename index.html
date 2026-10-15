@@ -11,7 +11,7 @@
   --hairline:#e0e0e0; --divider:#f0f0f0; --chip:#e8e8ed;
   --nav:#000000; --frost:rgba(245,245,247,.8);
   --ok:#1d8a3a; --ok-bg:#e3f4e8; --warn:#b25000; --warn-bg:#fff1e0; --done:#6e6e73; --done-bg:#ececf0;
-  --scrim:rgba(0,0,0,.4);
+  --scrim:rgba(0,0,0,.4); --shadow:rgba(0,0,0,.14);
   --display:"SF Pro Display",system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
   --text:"SF Pro Text",system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
 }
@@ -80,13 +80,13 @@ dialog.guide-dlg{width:min(860px,calc(100vw - 32px))}
 .board{background:var(--parchment);padding-block:48px 80px;min-height:70vh}
 .board-head{margin-bottom:28px}
 .headline{font-size:40px;line-height:1.15;font-weight:700;letter-spacing:-.4px}
-.headline span{color:var(--muted)}
+.headline-sub{font-size:19px;color:var(--muted);margin-top:6px}
 .stats{margin-top:10px;font-size:14px;color:var(--muted);letter-spacing:-.224px;font-variant-numeric:tabular-nums}
 .stats b{color:var(--ink);font-weight:600}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chipbtn{border:1px solid var(--hairline);background:var(--canvas);border-radius:9999px;padding:8px 16px;font-size:14px;cursor:pointer;letter-spacing:-.224px}
-.chipbtn[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--primary-focus);border-color:var(--primary-focus);color:var(--primary)}
+.chipbtn[aria-pressed="true"]{border-color:transparent;box-shadow:0 2px 10px var(--shadow);font-weight:600}
 .chipbtn .n{color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
 .search{border:1px solid var(--hairline);background:var(--canvas);border-radius:9999px;padding:0 18px;height:40px;font-size:15px;width:240px;max-width:100%}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
@@ -95,10 +95,11 @@ dialog.guide-dlg{width:min(860px,calc(100vw - 32px))}
 .card:active{transform:scale(.99)}
 .card-eyebrow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:-.224px}
 .status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:9999px;letter-spacing:0;font-variant-numeric:tabular-nums;white-space:nowrap}
-.status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.st-open{background:var(--ok-bg);color:var(--ok)}
-.st-pick{background:var(--warn-bg);color:var(--warn)}
-.st-closed{background:var(--done-bg);color:var(--done)}
+.status{background:var(--chip);color:var(--muted)}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--dot)}
+.st-open{--dot:var(--ok)}
+.st-pick{--dot:var(--warn)}
+.st-closed{--dot:var(--muted-48)}
 .when{font-size:12px;color:var(--muted);letter-spacing:-.12px;font-weight:400}
 .card h3{font-size:28px;line-height:1.18;letter-spacing:-.2px;font-weight:700;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .leader{font-size:17px;color:var(--muted);margin-top:6px}
@@ -186,7 +187,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   <section class="board" id="board">
     <div class="wrap wide">
       <div class="board-head">
-        <h1 class="headline">모집 보드. <span>함께할 자유곡을 골라 클릭 한 번으로 참여 신청하세요.</span></h1>
+        <h1 class="headline">자유곡 모집 보드</h1>
+        <p class="headline-sub">참여하고 싶은 곡을 눌러 신청하세요.</p>
         <p class="stats">모집 중 <b id="s-open">0</b>곡 · 등록 <b id="s-songs">0</b>곡 · 참여 신청 <b id="s-apps">0</b>명</p>
       </div>
       <div class="toolbar">
@@ -215,7 +217,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 <!-- 신청 방법 -->
 <dialog id="dlg-guide" class="guide-dlg" aria-labelledby="g-t">
   <div class="dlg">
-    <div class="dlg-h"><div><h2 id="g-t">신청 방법</h2><p class="sub">곡장은 올리고, 플레이어는 누르면 끝.</p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
+    <div class="dlg-h"><div><h2 id="g-t">신청 방법</h2><p class="sub">곡장과 플레이어별 진행 순서입니다.</p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
     <div class="dlg-b">
       <div class="roles">
         <article class="role">
@@ -406,9 +408,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
   function promoCard() {
     const c = el("button", "card promo"); c.type = "button"; c.dataset.act = "guide";
-    const eb = el("div", "card-eyebrow"); eb.append(el("span", null, "신청 방법"));
+    const eb = el("div", "card-eyebrow"); eb.append(el("span", null, "안내"));
     const p = el("div", "people-h"); p.append(el("span", "go", "자세히 보기 ›"));
-    c.append(eb, el("h3", null, "곡장은 올리고, 플레이어는 누르면 끝."), el("p", "desc", "등록 후 2시간 자유 신청, 선착순 아님. 같은 사람과 한 학기 3곡 이상 겹치지 않기."), el("div", "promo-logo"), p);
+    c.append(eb, el("h3", null, "자유곡 신청 방법"), el("p", "desc", "등록 후 2시간 자유 신청, 선착순 아님. 같은 사람과 한 학기 3곡 이상 겹치지 않기."), el("div", "promo-logo"), p);
     return c;
   }
 
