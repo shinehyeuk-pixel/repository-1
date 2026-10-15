@@ -186,11 +186,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 <main id="top">
   <section class="board" id="board">
     <div class="wrap wide">
-      <div class="board-head">
-        <h1 class="headline">자유곡 모집 보드</h1>
-        <p class="headline-sub">참여하고 싶은 곡을 눌러 신청하세요.</p>
-        <p class="stats">모집 중 <b id="s-open">0</b>곡 · 등록 <b id="s-songs">0</b>곡 · 참여 신청 <b id="s-apps">0</b>명</p>
-      </div>
       <div class="toolbar">
         <div class="chips" role="group" aria-label="상태 필터">
           <button class="chipbtn" data-filter="all" aria-pressed="true">전체<span class="n" id="n-all">0</span></button>
@@ -380,9 +375,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     const counts = { all: songs.length, open: 0, pick: 0, closed: 0 };
     songs.forEach(s => counts[statusOf(s)]++);
     Object.entries(counts).forEach(([k, v]) => $("#n-" + k).textContent = v);
-    $("#s-open").textContent = counts.open;
-    $("#s-songs").textContent = songs.length;
-    $("#s-apps").textContent = apps.filter(a => songs.some(s => s.id === a.songId)).length;
 
     const order = { open: 0, pick: 1, closed: 2 };
     const q = norm(query);
