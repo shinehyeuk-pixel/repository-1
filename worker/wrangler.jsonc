@@ -1,0 +1,18 @@
+{
+  "name": "terra-freetrack-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-01",
+  "vars": {
+    // 이 주소에서 온 요청만 쓰기를 허용 (GitHub Pages 주소). 쉼표로 여러 개.
+    "ALLOWED_ORIGINS": "https://shinehyeuk-pixel.github.io,http://localhost:8765"
+  },
+  // 임원진 관리 키는 비밀값: `npx wrangler secret put ADMIN_KEY`
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "terra-freetrack",
+      // `npx wrangler d1 create terra-freetrack` 결과의 database_id로 바꾸기
+      "database_id": "00000000-0000-0000-0000-000000000000"
+    }
+  ]
+}

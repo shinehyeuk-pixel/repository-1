@@ -1,10 +1,20 @@
+<!doctype html>
+<html lang="ko">
+<head>
 <meta charset="utf-8">
-<title>자유곡 모집 보드</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TERRA 자유곡</title>
+<meta name="description" content="TERRA 자유곡 모집 보드. 곡장은 곡을 올리고, 플레이어는 한 번에 참여 신청.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 /* Layout: MA 스타일 — 완전한 검정 위에 천천히 번지는 색 덩어리, 흰색 굵은 그로테스크 한 가족(Archivo 기본 폭 + Noto Sans KR).
    큰 "TERRA + 자유곡" 제목 아래 필터가 대문자 목록으로 나열. 곡 하나당 검정 사각형 하나. 단일 다크 룩. */
 :root{
@@ -106,9 +116,16 @@ button,input,textarea{font:inherit;letter-spacing:inherit;color:inherit}
 .desc{font-size:15px;color:rgba(255,255,255,.7);max-width:46ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .foot-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.listen{display:inline-flex;align-items:center;gap:6px;padding:11px 18px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;font-size:var(--fs-label);font-weight:700;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background-color .25s}
+.listen{border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;padding:11px 18px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;font-size:var(--fs-label);font-weight:700;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background-color .25s}
 .listen:hover{background:rgba(255,255,255,.2)}
 .dsec .btn{align-self:flex-start}
+.dlg-stack{display:flex;flex-direction:column;gap:24px}
+.player{position:relative;border-radius:14px;overflow:hidden;background:#111}
+.player.yt{aspect-ratio:16/9}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.player.sc{height:166px}
+.player-src{font-size:13px;color:var(--muted);text-decoration:none}
+.player-src:hover{color:#fff}
 .foot-l{display:flex;flex-direction:column;gap:8px;min-width:0}
 .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;font-weight:500;height:30px;letter-spacing:var(--tr-mono);color:rgba(255,255,255,.78);white-space:nowrap;font-variant-numeric:tabular-nums}
 .status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--dot)}
@@ -204,6 +221,7 @@ dialog.guide-dlg{width:min(900px,calc(100vw - 32px))}
 .toast{border-radius:999px;box-shadow:var(--float-hi);animation:toast-in .45s var(--ease);position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--bone);color:#0a0a0a;padding:14px 22px;font-size:13px;font-weight:500;z-index:50;max-width:calc(100vw - 32px)}
 
 footer{background:var(--bg);color:var(--dim);font-family:var(--mono);font-size:var(--fs-meta);padding-block:28px 44px;border-top:1px solid var(--line);letter-spacing:var(--tr-mono)}
+.link-quiet{background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
 @media (max-width:980px){.grid{grid-template-columns:1fr}}
@@ -215,10 +233,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::backdrop{transition:none!important;animation:none!important}}
 </style>
+<script src="config.js"></script>
+</head>
+<body>
 
 <div class="page-aura" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
-<div id="banner" class="banner" hidden>미리보기 모드 · 신청 내용이 이 브라우저에만 저장됩니다</div>
+<div id="banner" class="banner" hidden>미리보기 모드 · 서버 주소가 없어 신청 내용이 이 브라우저에만 저장됩니다</div>
 
 <header class="subnav">
   <div class="wrap">
@@ -255,7 +276,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 <footer>
   <div class="wrap">
     <span>자유곡 모집 보드 · 신청 기간은 등록 후 2시간 · 같은 사람과 한 학기 3곡 이상 겹치지 않기</span>
-    <span>문의는 임원진에게</span>
+    <span>문의는 임원진에게 · <button type="button" class="link-quiet" id="admin-btn">임원진 모드</button></span>
   </div>
 </footer>
 
@@ -325,7 +346,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       <div class="field"><label for="a-name">이름<span class="req">*</span></label><input id="a-name" name="name" maxlength="20" autocomplete="name" required></div>
       <p class="alert" id="ap-overlap" hidden></p>
       <div class="field"><label for="a-part">하고 싶은 파트</label><input id="a-part" name="part" maxlength="40" placeholder="예) 2벌스 랩, 훅 보컬"></div>
-      <div class="field"><label for="a-note">곡장에게 한마디</label><textarea id="a-note" name="note" maxlength="200" placeholder="연락처나 레퍼런스 링크 등"></textarea></div>
+      <div class="field"><label for="a-note">곡장에게 한마디</label><textarea id="a-note" name="note" maxlength="200" placeholder="레퍼런스 링크나 하고 싶은 말 · 모두에게 공개됩니다"></textarea></div>
       <p class="err" id="ap-err" hidden></p>
     </div>
     <div class="dlg-f"><button type="button" class="btn quiet" data-close>취소</button><button class="btn" type="submit">신청하기</button></div>
@@ -336,7 +357,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 <dialog id="dlg-detail" aria-labelledby="d-t">
   <div class="dlg">
     <div class="dlg-h"><div><h2 id="d-t"></h2><p class="sub" id="d-sub"></p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
-    <div class="dlg-b" id="d-body"></div>
+    <div class="dlg-b"><div class="player" id="d-player" hidden></div><div class="dlg-stack" id="d-body"></div></div>
     <div class="dlg-f" id="d-foot"></div>
   </div>
 </dialog>
@@ -353,47 +374,98 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
   let songs = [], apps = [], myId = null, canEdit = false, filter = "all", query = "", detailId = null, applyId = null;
 
-  /* ---------- 저장소: db 우선, 없으면 브라우저 저장 ---------- */
+  /* ---------- 저장소: Cloudflare API, 주소가 없으면 브라우저 저장(미리보기) ---------- */
+  const API = (window.TERRA_API || "").replace(/\/+$/, "");
+  const POLL_MS = 5000;
+  const ERR = {
+    not_owner: "곡장(또는 임원진)만 할 수 있습니다.",
+    song_closed: "이미 마감된 곡입니다.",
+    duplicate_name: "이미 같은 이름으로 신청했습니다.",
+    sent_file_required: "곡 파일 전송을 확인해 주세요.",
+    link_invalid: "음원 링크 주소를 확인해 주세요.",
+    origin_not_allowed: "이 주소에서는 저장할 수 없습니다. 임원진에게 알려 주세요.",
+    song_not_found: "삭제된 곡입니다.",
+    applicant_not_found: "이미 취소된 신청입니다.",
+  };
+  let skew = 0;
+  const clock = () => Date.now() + skew;
+  const ls = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+  async function sha256(t) {
+    const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+    return [...new Uint8Array(d)].map(x => x.toString(16).padStart(2, "0")).join("");
+  }
+  function ownerToken() {
+    let t = ls.get("terra-owner");
+    if (!t || !/^[A-Za-z0-9_-]{24,128}$/.test(t)) {
+      t = [...crypto.getRandomValues(new Uint8Array(24))].map(x => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"[x & 63]).join("");
+      ls.set("terra-owner", t);
+    }
+    return t;
+  }
   const store = {
     mode: "loading",
     subs: {},
+    token: "",
     async init() {
-      let db = null, user = null;
-      try { [db, user] = await Promise.all([window.claude?.use?.("db") ?? null, window.claude?.use?.("user") ?? null]); } catch {}
-      if (user) { try { myId = await user.id(); canEdit = !!(await user.canEdit()); } catch {} }
-      if (db) { this.mode = "db"; this.db = db; }
-      else {
+      if (API) {
+        this.mode = "api"; this.token = ownerToken(); myId = await sha256(this.token);
+        if (ls.get("terra-admin")) canEdit = await this.checkAdmin(ls.get("terra-admin"));
+      } else {
         this.mode = "local"; $("#banner").hidden = false;
-        try { myId = localStorage.getItem("jy-me") || ("local-" + Math.random().toString(36).slice(2)); localStorage.setItem("jy-me", myId); } catch { myId = "local"; }
+        myId = ls.get("jy-me") || ("local-" + Math.random().toString(36).slice(2)); ls.set("jy-me", myId);
       }
     },
-    watch(coll, cb) {
-      if (this.mode === "db") {
-        this.db.collection(coll).limit(1000).onSnapshot(
-          snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
-          e => toast("불러오기 실패: 새로고침해 주세요")
-        );
-      } else { this.subs[coll] = cb; cb(this._load(coll)); }
+    async call(method, path, body) {
+      const headers = { "X-Owner": this.token };
+      const adm = ls.get("terra-admin"); if (adm) headers["X-Admin-Key"] = adm;
+      if (body) headers["Content-Type"] = "application/json";
+      let res;
+      try { res = await fetch(API + "/api/" + path, { method, headers, body: body ? JSON.stringify(body) : undefined }); }
+      catch { const e = new Error("network"); e.code = "network"; throw e; }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { const e = new Error(data.error || "http_" + res.status); e.code = data.error || "http_" + res.status; throw e; }
+      return data;
     },
-    _load(coll) { try { return JSON.parse(localStorage.getItem("jy-" + coll) || "[]"); } catch { return []; } },
-    _save(coll, rows) { try { localStorage.setItem("jy-" + coll, JSON.stringify(rows)); } catch {} this.subs[coll]?.(rows); },
+    async checkAdmin(key) {
+      try {
+        const r = await fetch(API + "/api/admin", { headers: { "X-Owner": this.token, "X-Admin-Key": key } });
+        return !!(await r.json()).admin;
+      } catch { return false; }
+    },
+    watch(coll, cb) {
+      this.subs[coll] = cb;
+      if (this.mode === "local") return cb(this._load(coll));
+      if (!this.polling) { this.polling = true; this.poll(); setInterval(() => { if (!document.hidden) this.poll(); }, POLL_MS); document.addEventListener("visibilitychange", () => { if (!document.hidden) this.poll(); }); }
+    },
+    async poll() {
+      try {
+        const r = await fetch(API + "/api/state", { cache: "no-store" });
+        if (!r.ok) throw 0;
+        const d = await r.json();
+        skew = d.now - Date.now();
+        this.failed = false;
+        this.subs.songs?.(d.songs); this.subs.applicants?.(d.applicants);
+      } catch { if (!this.failed) toast("서버에 연결하지 못했습니다. 잠시 후 자동으로 다시 시도합니다."); this.failed = true; }
+    },
+    _load(coll) { try { return JSON.parse(ls.get("jy-" + coll) || "[]"); } catch { return []; } },
+    _save(coll, rows) { ls.set("jy-" + coll, JSON.stringify(rows)); this.subs[coll]?.(rows); },
     async set(coll, id, data) {
-      if (this.mode === "db") return this.db.collection(coll).doc(id).set(data);
+      if (this.mode === "api") { await this.call("POST", coll, data); return this.poll(); }
       const rows = this._load(coll).filter(r => r.id !== id); rows.push({ id, ...data }); this._save(coll, rows);
     },
     async update(coll, id, data) {
-      if (this.mode === "db") return this.db.collection(coll).doc(id).update(data);
+      if (this.mode === "api") { await this.call("PATCH", coll + "/" + encodeURIComponent(id), data); return this.poll(); }
       this._save(coll, this._load(coll).map(r => r.id === id ? { ...r, ...data } : r));
     },
     async remove(coll, id) {
-      if (this.mode === "db") return this.db.collection(coll).doc(id).delete();
+      if (this.mode === "api") { await this.call("DELETE", coll + "/" + encodeURIComponent(id)); return this.poll(); }
       this._save(coll, this._load(coll).filter(r => r.id !== id));
     }
   };
   const newId = () => Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
 
   /* ---------- 파생 상태 ---------- */
-  const statusOf = s => s.closed ? "closed" : (Date.now() - s.createdAt >= WINDOW_MS ? "pick" : "open");
+  const statusOf = s => s.closed ? "closed" : (clock() - s.createdAt >= WINDOW_MS ? "pick" : "open");
   const appsOf = id => apps.filter(a => a.songId === id).sort((a, b) => a.createdAt - b.createdAt);
   /* http(s) 주소만 링크로 씀. 스킴이 없으면 https:// 붙임 */
   const safeLink = raw => {
@@ -401,17 +473,27 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     if (!/^[a-z][a-z0-9+.-]*:/i.test(t)) t = "https://" + t;
     try { const u = new URL(t); return /^https?:$/.test(u.protocol) ? u.href : ""; } catch { return ""; }
   };
+  function embedOf(link) {
+    const h = safeLink(link); if (!h) return null;
+    const u = new URL(h), host = u.hostname.replace(/^(www|m|music)\./, "");
+    let id = null;
+    if (host === "youtu.be") id = u.pathname.slice(1).split("/")[0];
+    else if (host === "youtube.com" || host === "youtube-nocookie.com") id = u.searchParams.get("v") || (u.pathname.match(/^\/(?:shorts|embed|live)\/([^/?#]+)/) || [])[1];
+    if (id && /^[A-Za-z0-9_-]{6,20}$/.test(id)) return { kind: "yt", src: `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1` };
+    if (host === "soundcloud.com" || host === "on.soundcloud.com") return { kind: "sc", src: "https://w.soundcloud.com/player/?url=" + encodeURIComponent(h) + "&color=%23ffffff&auto_play=false&visual=false&show_comments=false" };
+    return null;
+  }
   const listenLink = (s, cls) => { const h = safeLink(s.link); if (!h) return null; const a = el("a", cls, /youtu\.?be/i.test(h) ? "▶ 유튜브에서 듣기" : "▶ 듣기"); a.href = h; a.target = "_blank"; a.rel = "noopener noreferrer"; return a; };
   const titleOf = s => s.title || `${s.leader}의 자유곡`;
   const isMine = s => canEdit || (myId && s.by === myId);
   const left = s => {
-    const ms = Math.max(0, s.createdAt + WINDOW_MS - Date.now());
+    const ms = Math.max(0, s.createdAt + WINDOW_MS - clock());
     const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000), sec = Math.floor(ms % 60000 / 1000);
     return h ? `${h}시간 ${m}분 남음` : m ? `${m}분 ${String(sec).padStart(2, "0")}초 남음` : `${sec}초 남음`;
   };
   const statusLabel = s => ({ open: "모집 중 · " + left(s), pick: "선정 중", closed: "마감" })[statusOf(s)];
   const ago = t => {
-    const m = Math.round((Date.now() - t) / 60000);
+    const m = Math.round((clock() - t) / 60000);
     if (m < 1) return "방금"; if (m < 60) return `${m}분 전`;
     const h = Math.round(m / 60); if (h < 24) return `${h}시간 전`;
     const d = new Date(t); return `${d.getMonth() + 1}월 ${d.getDate()}일`;
@@ -533,8 +615,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     if (!names.children.length) names.append(el("span", "none", "아직 신청자 없음"));
     const badge = el("span", "status st-" + st, statusLabel(s)); badge.dataset.timer = s.id;
     const fl = el("div", "foot-l"); fl.append(badge, names);
-    const f = el("div", "foot"), fr = el("div", "foot-r"), ln = listenLink(s, "listen");
-    if (ln) fr.append(ln);
+    const f = el("div", "foot"), fr = el("div", "foot-r");
+    if (embedOf(s.link)) { const b = el("button", "listen", "▶ 듣기"); b.type = "button"; b.dataset.listen = s.id; fr.append(b); }
+    else { const ln = listenLink(s, "listen"); if (ln) fr.append(ln); }
     fr.append(el("span", "go", st === "closed" ? "자세히 보기 →" : "참여 신청 →"));
     f.append(fl, fr);
     c.append(f);
@@ -555,7 +638,10 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     if (st === "pick" && mine) b.append(el("p", "alert", "2시간이 지났습니다. 신청자가 많으면 추첨·간택으로 선정하고 ‘선정’을 눌러 표시하세요. 인원이 다 차면 마감하세요."));
     const sec = (t, body) => { const d = el("div", "dsec"); d.append(el("h4", null, t)); d.append(typeof body === "string" ? el("p", null, body) : body); b.append(d); };
     sec("곡 설명", s.desc);
-    const dl = listenLink(s, "btn sm ghost"); if (dl) sec("음원", dl);
+    const emb = embedOf(s.link);
+    setPlayer(emb);
+    const dl = listenLink(s, emb ? "player-src" : "btn sm ghost");
+    if (dl) { if (emb) dl.textContent = (emb.kind === "yt" ? "유튜브" : "사운드클라우드") + "에서 열기 ↗"; sec("음원", dl); }
     if (s.style) { const w = el("div", "styles"); split(s.style).forEach(t => w.append(el("span", "pill", t))); sec("원하는 플레이어 스타일", w); }
     if (split(s.team).length) { const w = el("div", "names"); split(s.team).forEach(t => w.append(el("span", "name team", t))); sec("이미 정한 팀원", w); }
     const ul = el("ul", "alist");
@@ -569,14 +655,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       who.append(el("span", null, ago(a.createdAt)));
       const acts = el("div", "acts");
       if (mine) { const t = el("button", "btn sm " + (a.selected ? "quiet" : "ghost"), a.selected ? "선정 취소" : "선정"); t.dataset.sel = a.id; acts.append(t); }
-      if (mine || a.by === myId) { const r = el("button", "btn sm quiet", a.by === myId && !mine ? "신청 취소" : "삭제"); r.dataset.delapp = a.id; acts.append(r); }
+      if (mine || a.by === myId) { const r = el("button", "btn sm quiet", a.by === myId && !mine ? "신청 취소" : "삭제"); r.dataset.delapp = a.id; armUi(r, "a" + a.id, "한 번 더 누르면 삭제"); acts.append(r); }
       li.append(who, acts); ul.append(li);
     });
     sec(`신청자 ${list.length}명`, ul);
 
     const f = $("#d-foot"); f.replaceChildren();
     if (mine) {
-      const del = el("button", "btn danger", "곡 삭제"); del.dataset.delsong = s.id; f.append(del);
+      const del = el("button", "btn danger", "곡 삭제"); del.dataset.delsong = s.id; armUi(del, "s" + s.id, "한 번 더 누르면 곡 삭제"); f.append(del);
       const cl = el("button", "btn quiet", s.closed ? "모집 다시 열기" : "마감하기"); cl.dataset.close_song = s.id; f.append(cl);
     }
     if (!s.closed) { const ap = el("button", "btn", "참여 신청"); ap.dataset.apply = s.id; f.append(ap); }
@@ -601,7 +687,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   async function guarded(key, fn, okMsg) {
     if (pending.has(key)) return; pending.add(key);
     try { await fn(); if (okMsg) toast(okMsg); }
-    catch (e) { toast(e?.code === "invalid_argument" ? "권한이 없어 저장하지 못했습니다. 곡장 또는 임원진에게 편집 권한을 요청하세요." : "저장하지 못했습니다. 잠시 후 다시 시도해 주세요."); throw e; }
+    catch (e) { toast(ERR[e?.code] || (e?.code === "network" ? "서버에 연결하지 못했습니다. 인터넷 연결을 확인해 주세요." : "저장하지 못했습니다. 잠시 후 다시 시도해 주세요.")); throw e; }
     finally { pending.delete(key); }
   }
   const remember = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
@@ -626,6 +712,20 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     o.hidden = false;
     o.textContent = hits.map(h => `${h.name}님과 이번 학기 이미 ${h.n}곡`).join(", ") + (hits[0].n >= 3 ? " — 3곡 이상 겹쳤습니다. 다른 곡을 우선 고려해 주세요." : " 함께했습니다. 이 곡까지 하면 3곡입니다.");
   }
+  // 상세 창 플레이어. 같은 곡이면 그대로 두어 5초마다 다시 그려도 재생이 끊기지 않게 함
+  function setPlayer(emb, autoplay) {
+    const box = $("#d-player");
+    if (!emb) { box.replaceChildren(); box.hidden = true; box.dataset.src = ""; return; }
+    if (box.dataset.src === emb.src) return;
+    const f = document.createElement("iframe");
+    f.src = !autoplay ? emb.src : emb.kind === "yt" ? emb.src + "&autoplay=1" : emb.src.replace("auto_play=false", "auto_play=true");
+    f.title = "음원 재생"; f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.referrerPolicy = "strict-origin-when-cross-origin";
+    box.className = "player " + emb.kind; box.replaceChildren(f); box.hidden = false; box.dataset.src = emb.src;
+  }
+  // 삭제는 두 번 눌러 확인. 확인 대기 상태를 따로 두어 5초마다 다시 그려도 유지되게 함
+  let armed = null, armT;
+  function arm(key, btn, label) { armed = key; btn.textContent = label; clearTimeout(armT); armT = setTimeout(() => { armed = null; if (detailId) fillDetail(); }, 5000); }
+  function armUi(btn, key, label) { if (armed === key) btn.textContent = label; }
   function openDetail(id) { detailId = id; fillDetail(); const d = $("#dlg-detail"); if (!d.open) d.showModal(); }
 
   document.addEventListener("click", async e => {
@@ -639,24 +739,25 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", b === t));
       moveInd(); return swap();
     }
+    if (t.dataset.listen) { const s = songs.find(x => x.id === t.dataset.listen); if (s) { setPlayer(embedOf(s.link), true); openDetail(s.id); } return; }
     if (t.dataset.open) return openDetail(t.dataset.open);
     if (t.dataset.apply) { $("#dlg-detail").close(); return openApply(t.dataset.apply); }
     if (t.dataset.sel) { const a = apps.find(x => x.id === t.dataset.sel); if (a) guarded("sel" + a.id, () => store.update("applicants", a.id, { selected: !a.selected }), a.selected ? "선정을 취소했습니다" : `${a.name}님을 선정했습니다`).catch(() => {}); return; }
     if (t.dataset.delapp) {
-      if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "한 번 더 누르면 삭제"; return; }
+      if (armed !== "a" + t.dataset.delapp) { arm("a" + t.dataset.delapp, t, "한 번 더 누르면 삭제"); return; }
       return guarded("da" + t.dataset.delapp, () => store.remove("applicants", t.dataset.delapp), "삭제했습니다").catch(() => {});
     }
     if (t.dataset.close_song) { const s = songs.find(x => x.id === t.dataset.close_song); if (s) guarded("cl" + s.id, () => store.update("songs", s.id, { closed: !s.closed }), s.closed ? "모집을 다시 열었습니다" : "마감했습니다. 공지방에 “마감입니다!”를 남겨 주세요").catch(() => {}); return; }
     if (t.dataset.delsong) {
-      if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = "한 번 더 누르면 곡 삭제"; return; }
+      if (armed !== "s" + t.dataset.delsong) { arm("s" + t.dataset.delsong, t, "한 번 더 누르면 곡 삭제"); return; }
       const id = t.dataset.delsong;
       try {
-        await guarded("ds" + id, async () => { for (const a of appsOf(id)) await store.remove("applicants", a.id); await store.remove("songs", id); }, "곡을 삭제했습니다");
+        await guarded("ds" + id, async () => { if (store.mode !== "api") for (const a of appsOf(id)) await store.remove("applicants", a.id); await store.remove("songs", id); }, "곡을 삭제했습니다");
         $("#dlg-detail").close();
       } catch {}
     }
   });
-  $("#dlg-detail").addEventListener("close", () => detailId = null);
+  $("#dlg-detail").addEventListener("close", () => { detailId = null; setPlayer(null); });
   document.addEventListener("keydown", e => {
     const c = e.target.closest?.("[data-open]");
     if (c && e.target === c && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDetail(c.dataset.open); }
@@ -696,11 +797,24 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     } catch {}
   });
 
+  /* ---------- 임원진 모드 ---------- */
+  function adminLabel() { $("#admin-btn").textContent = canEdit ? "임원진 모드 끄기" : "임원진 모드"; }
+  $("#admin-btn").addEventListener("click", async () => {
+    if (store.mode !== "api") return toast("서버가 연결된 사이트에서만 쓸 수 있습니다.");
+    if (canEdit) { ls.set("terra-admin", null); canEdit = false; adminLabel(); render(); return toast("임원진 모드를 껐습니다."); }
+    const key = (prompt("임원진 관리 키") || "").trim(); if (!key) return;
+    if (await store.checkAdmin(key)) { ls.set("terra-admin", key); canEdit = true; adminLabel(); render(); toast("임원진 모드: 모든 곡과 신청을 관리할 수 있습니다."); }
+    else toast("관리 키가 맞지 않습니다.");
+  });
+
   /* ---------- 시작 ---------- */
   store.init().then(() => {
+    adminLabel();
     const seen = new Set(), go = k => { seen.add(k); if (seen.size === 2) render(); };
     store.watch("songs", rows => { songs = rows; go("s"); });
     store.watch("applicants", rows => { apps = rows; go("a"); });
   });
 })();
 </script>
+</body>
+</html>

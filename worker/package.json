@@ -1,0 +1,14 @@
+{
+  "name": "terra-freetrack-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute terra-freetrack --local --file=./schema.sql",
+    "db:remote": "wrangler d1 execute terra-freetrack --remote --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  }
+}
