@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
 /* Layout: MA 스타일 — 완전한 검정 위에 천천히 번지는 색 덩어리, 흰색 굵은 그로테스크 한 가족(Archivo 기본 폭 + Noto Sans KR).
-   큰 "TERAS7 + 자유곡" 제목 아래 필터가 대문자 목록으로 나열. 곡 하나당 검정 사각형 하나. 단일 다크 룩. */
+   큰 "TERRA + 자유곡" 제목 아래 필터가 대문자 목록으로 나열. 곡 하나당 검정 사각형 하나. 단일 다크 룩. */
 :root{
   --bg:#000; --wall:#000; --panel:#0a0a0a; --panel-2:#161616; --line:#1f1f1f; --line-2:#333;
   --bone:#fff; --stone:#b8b8b8; --muted:#8c8c8c; --dim:#5e5e5e;
@@ -128,7 +128,7 @@ button,input,textarea{font:inherit;letter-spacing:inherit;color:inherit}
 .empty p{color:var(--muted);margin-top:8px}
 
 /* dialogs */
-dialog{border:1px solid var(--glass-line);border-radius:22px;padding:0;background:rgba(14,14,13,.8);backdrop-filter:blur(22px) saturate(1.1);-webkit-backdrop-filter:blur(22px) saturate(1.1);color:var(--bone);width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 48px);box-shadow:0 40px 80px #000}
+dialog{border:1px solid var(--glass-line);border-radius:22px;padding:0;background:rgba(0,0,0,.74);backdrop-filter:blur(22px) saturate(1.1);-webkit-backdrop-filter:blur(22px) saturate(1.1);color:var(--bone);width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 48px);box-shadow:0 40px 80px #000}
 dialog::backdrop{background:var(--scrim);backdrop-filter:blur(4px)}
 dialog[open]{animation:dlg-in .45s var(--ease)}
 dialog[open]::backdrop{animation:fade-in .35s ease}
@@ -140,22 +140,30 @@ dialog.closing::backdrop{animation:fade-out .22s ease forwards}
 @keyframes fade-out{to{opacity:0}}
 dialog.guide-dlg{width:min(900px,calc(100vw - 32px))}
 .dlg{display:flex;flex-direction:column;max-height:calc(100dvh - 50px)}
-.dlg-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:28px 28px 16px;border-bottom:1px solid var(--line)}
+.dlg-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:32px 32px 8px}
 .dlg-h h2{font-size:clamp(34px,5vw,52px);line-height:.95}
-.dlg-h .sub{font-family:var(--mono);font-size:var(--fs-meta);color:var(--muted);margin-top:10px;letter-spacing:var(--tr-mono)}
+.dlg-h .sub{font-family:var(--kr);font-size:15px;color:var(--stone);margin-top:12px;letter-spacing:var(--tr-mono)}
 .x{width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.1);box-shadow:0 6px 16px -4px rgba(0,0,0,.7);transition:background-color .25s,transform .35s var(--ease);cursor:pointer;font-size:18px;flex:none;color:var(--bone)}
-.dlg-b{padding:24px 28px;overflow:auto;display:flex;flex-direction:column;gap:20px}
-.dlg-f{padding:16px 28px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.field{display:flex;flex-direction:column;gap:8px}
-.field label{color:var(--stone)}
-.req{color:var(--rust);margin-left:4px}
-.hint{font-family:var(--mono);font-size:var(--fs-meta);color:var(--dim);letter-spacing:var(--tr-mono)}
-.field input,.field textarea{border-radius:12px;border:1px solid var(--line-2);background:var(--bg);padding:12px 14px;font-size:16px;width:100%}
-.field textarea{min-height:100px;resize:vertical;line-height:1.55}
-.field input:focus,.field textarea:focus{outline:none;border-color:var(--bone)}
-.check{border-radius:12px;display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line-2);font-size:14px;cursor:pointer}
-.check input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--bone)}
-.alert{font-size:13px;padding:12px 14px;color:var(--warn);border-left:2px solid var(--warn);background:rgba(217,154,60,.07)}
+.dlg-b{padding:24px 32px;overflow:auto;display:flex;flex-direction:column;gap:24px}
+.dlg-f{padding:20px 32px 28px;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:10px}
+.field label{display:flex;align-items:center;gap:8px;color:#fff;font-size:15px;letter-spacing:-.01em;text-transform:none}
+.req{font-size:0;line-height:0}
+.req::after{content:"필수";font-family:var(--kr);font-size:11px;font-weight:600;line-height:1;letter-spacing:0;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff}
+.hint{font-size:13px;color:var(--muted);letter-spacing:0}
+.field input,.field textarea{border-radius:14px;border:1px solid transparent;background:rgba(255,255,255,.06);padding:15px 18px;font-size:16px;width:100%;transition:background-color .25s,border-color .25s,box-shadow .35s var(--ease)}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,.34)}
+.field input:hover,.field textarea:hover{background:rgba(255,255,255,.09)}
+.field textarea{min-height:112px;resize:vertical;line-height:1.55}
+.field input:focus,.field textarea:focus{outline:none;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.7);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+.check{display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:14px;border:1px solid transparent;background:rgba(255,255,255,.06);font-size:15px;cursor:pointer;transition:background-color .25s,border-color .25s}
+.check:hover{background:rgba(255,255,255,.09)}
+.check:has(input:checked){border-color:rgba(255,255,255,.5)}
+.check > span{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.check input{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;margin:0;border-radius:7px;border:1.5px solid rgba(255,255,255,.45);background:transparent center/14px no-repeat;cursor:pointer;transition:background-color .2s,border-color .2s}
+.check input:checked{background-color:#fff;border-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.check input:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.alert{font-size:13px;padding:12px 16px;border-radius:12px;color:var(--warn);background:rgba(217,154,60,.1)}
 .err{font-size:13px;color:var(--danger)}
 .dsec h4{margin:0 0 10px;color:var(--muted)}
 .dsec p{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--stone)}
@@ -207,7 +215,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
 <header class="subnav">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="자유곡 모집 홈"><span class="logo" aria-hidden="true"></span><span class="brand-name">Free Track</span></a>
+    <a class="brand" href="#top" aria-label="TERRA 자유곡 모집 홈"><span class="logo" aria-hidden="true"></span><span class="brand-name">Free Track</span></a>
     <div class="right">
       <button class="btn sm quiet" data-act="guide">신청 방법</button>
       <button class="btn sm" data-act="new">곡 등록</button>
@@ -220,7 +228,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     <div class="wrap">
       <div class="toolbar">
         <div>
-        <h1 class="hero">TERAS7<span class="plus">+</span>자유곡</h1>
+        <h1 class="hero">TERRA<span class="plus">+</span>자유곡</h1>
         <div class="chips" role="group" aria-label="상태 필터">
           <span class="chip-ind" aria-hidden="true"></span><button class="chipbtn" data-filter="all" aria-pressed="true">전체<span class="n" id="n-all">0</span></button>
           <button class="chipbtn" data-filter="open" aria-pressed="false">모집 중<span class="n" id="n-open">0</span></button>
@@ -290,7 +298,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     <div class="dlg-h"><div><h2 id="new-t">곡 등록</h2><p class="sub">등록 즉시 2시간 자유 신청이 시작됩니다.</p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
     <div class="dlg-b">
       <div class="field"><label for="n-leader">자유곡 신청자 이름<span class="req">*</span></label><input id="n-leader" name="leader" maxlength="20" autocomplete="name" required></div>
-      <div class="field"><label for="n-title">곡 제목 (가제)</label><input id="n-title" name="title" maxlength="40" placeholder="비워두면 ‘○○의 자유곡’"></div>
+      <div class="field"><label for="n-title">곡 제목 (가제)</label><input id="n-title" name="title" maxlength="40" placeholder="비워두면 ‘자유곡 + 내 이름’으로 표시"></div>
       <div class="field"><label for="n-team">이미 정한 팀원</label><input id="n-team" name="team" maxlength="80" placeholder="쉼표로 구분 · 예) 김민수, 박지원"><span class="hint">팀이 정해져 있다면 적어주세요.</span></div>
       <div class="field"><label for="n-desc">곡 설명<span class="req">*</span></label><textarea id="n-desc" name="desc" maxlength="600" required placeholder="분위기, 레퍼런스, BPM 등"></textarea></div>
       <div class="field"><label for="n-style">원하는 플레이어 스타일</label><textarea id="n-style" name="style" maxlength="300" placeholder="쉼표로 구분 · 예) 붐뱁, 2명, 랩 벌스 16마디, 보컬 훅"></textarea><span class="hint">주 장르, 인원수, 보컬, 랩, 벌스, 훅, 구성, 마디수 등</span></div>
@@ -492,7 +500,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   function promoCard() {
     const c = el("button", "card promo"); c.type = "button"; c.dataset.act = "guide";
     const f = el("div", "foot"); f.append(el("div", "promo-logo"), el("span", "go", "신청 방법 보기 →"));
-    c.append(aura("terass7-guide", GREY), heading("자유곡", "신청 방법"),
+    c.append(aura("terra-guide", GREY), heading("자유곡", "신청 방법"),
       lines(["곡 파일 임원진에게 전송", "보드에 곡 등록", "2시간 자유 신청 · 선착순 아님", "곡장이 추첨 또는 간택", "같은 사람과 3곡 이상 겹치지 않기"]), f);
     return c;
   }
