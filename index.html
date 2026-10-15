@@ -59,43 +59,33 @@ button,input,textarea{font:inherit;letter-spacing:inherit;color:inherit}
 .link{color:var(--primary);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
 .on-dark .link{color:var(--link-dark)}
 
-/* tiles */
-.tile{padding-block:80px}
-.hero{background:var(--canvas);text-align:center;padding-block:72px 64px}
-.hero h1{font-size:56px;line-height:1.07;letter-spacing:-.28px}
-.hero .lead{font-size:28px;line-height:1.14;letter-spacing:.196px;margin-top:10px;color:var(--ink)}
-.hero .ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:28px}
-.stats{display:flex;justify-content:center;gap:48px;margin-top:48px;flex-wrap:wrap}
-.stat b{display:block;font-family:var(--display);font-size:40px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
-.stat span{font-size:14px;color:var(--muted);letter-spacing:-.224px}
-
-.on-dark{background:var(--tile);color:var(--on-dark)}
-.eyebrow{font-size:14px;font-weight:600;letter-spacing:-.224px;color:var(--muted)}
-.on-dark .eyebrow{color:var(--on-dark-muted)}
-.sec-head{text-align:center;margin-bottom:48px}
-.sec-head h2{font-size:40px;line-height:1.1;margin-top:6px}
-.sec-head p{font-size:21px;line-height:1.38;color:var(--muted);margin-top:12px}
-.on-dark .sec-head p{color:var(--on-dark-muted)}
-
-.roles{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.role{background:var(--tile-2);border-radius:18px;padding:32px;min-width:0}
-.role h3{font-size:24px;line-height:1.17}
-.role .who{font-size:14px;color:var(--on-dark-muted);margin-top:4px}
-.steps{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:20px;counter-reset:s}
-.steps li{display:grid;grid-template-columns:28px 1fr;gap:12px;counter-increment:s}
-.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:#3a3a3c;color:#fff;font-size:14px;font-weight:600;display:grid;place-items:center;margin-top:1px}
+/* 신청 방법 다이얼로그 */
+dialog.guide-dlg{width:min(860px,calc(100vw - 32px))}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.role{background:var(--parchment);border-radius:18px;padding:24px;min-width:0}
+.role h3{font-size:21px;line-height:1.19}
+.role .who{font-size:14px;color:var(--muted);margin-top:2px}
+.steps{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:16px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:26px 1fr;gap:12px;counter-increment:s}
+.steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--canvas);font-size:13px;font-weight:600;display:grid;place-items:center;margin-top:1px}
 .steps b{display:block;font-weight:600}
-.steps p{color:var(--on-dark-muted);font-size:15px;margin-top:2px}
+.steps p{color:var(--muted);font-size:15px;margin-top:2px}
 .tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:9999px;margin-left:6px;vertical-align:2px;letter-spacing:0}
-.tag.rec{background:#0a3d1c;color:#4cd471}
-.tag.no{background:#3a2a10;color:#ffb050}
-.rule{margin-top:20px;background:var(--tile-2);border-radius:18px;padding:28px 32px;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
-.rule .big{font-family:var(--display);font-size:48px;font-weight:600;line-height:1;color:var(--link-dark);font-variant-numeric:tabular-nums}
-.rule div{flex:1;min-width:220px}
-.rule p{color:var(--on-dark-muted);font-size:15px;margin-top:4px}
+.tag.rec{background:var(--ok-bg);color:var(--ok)}
+.tag.no{background:var(--warn-bg);color:var(--warn)}
+.rule{background:var(--parchment);border-radius:18px;padding:20px 24px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.rule .big{font-family:var(--display);font-size:40px;font-weight:600;line-height:1;color:var(--primary);font-variant-numeric:tabular-nums}
+.rule div{flex:1;min-width:200px}
+.rule p{color:var(--muted);font-size:15px;margin-top:4px}
 
 /* board */
-.board{background:var(--parchment)}
+.board{background:var(--parchment);padding-block:48px 80px;min-height:70vh}
+.board-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:32px}
+.board-head h1{font-size:48px;line-height:1.08;letter-spacing:-.28px}
+.board-head .lead{font-size:21px;color:var(--muted);margin-top:6px;letter-spacing:.231px}
+.stats{display:flex;gap:32px}
+.stat b{display:block;font-family:var(--display);font-size:32px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);letter-spacing:-.12px}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chipbtn{border:1px solid var(--hairline);background:var(--canvas);border-radius:9999px;padding:8px 16px;font-size:14px;cursor:pointer;letter-spacing:-.224px}
@@ -166,63 +156,69 @@ dialog::backdrop{background:var(--scrim);backdrop-filter:blur(4px)}
 footer{background:var(--parchment);color:var(--muted);font-size:12px;letter-spacing:-.12px;padding-block:32px 48px;border-top:1px solid var(--hairline)}
 footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
-@media (max-width:833px){.gnav .links{display:none}.roles{grid-template-columns:1fr}.subnav .right a{display:none}}
+@media (max-width:833px){.roles{grid-template-columns:1fr}}
 @media (max-width:640px){
-  .hero h1{font-size:34px}.hero .lead{font-size:21px}.sec-head h2{font-size:28px}
-  .tile{padding-block:48px}.hero{padding-block:48px}.stats{gap:28px}.stat b{font-size:32px}
-  .role,.rule{padding:24px}.grid{grid-template-columns:1fr}.search{width:100%}
+  .board-head h1{font-size:34px}.board-head .lead{font-size:17px}.board{padding-block:32px 64px}
+  .stats{gap:24px}.stat b{font-size:26px}.subnav .name{font-size:19px}
+  .role,.rule{padding:20px}.grid{grid-template-columns:1fr}.search{width:100%}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <div id="banner" class="banner" hidden>미리보기 모드 · 신청 내용이 이 브라우저에만 저장됩니다</div>
 
-<nav class="gnav" aria-label="전체">
-  <div class="wrap">
-    <a class="brand" href="#top">자유곡</a>
-    <div class="links">
-      <a href="#guide">신청 방법</a>
-      <a href="#board">모집 보드</a>
-      <a href="#rule">중복 원칙</a>
-    </div>
-    <span id="me-label"></span>
-  </div>
-</nav>
-<div class="subnav">
-  <div class="wrap">
+<header class="subnav">
+  <div class="wrap wide">
     <span class="name">자유곡 모집</span>
     <div class="right">
-      <a href="#guide">신청 방법</a>
-      <a href="#board">모집 보드</a>
+      <button class="btn sm quiet" data-act="guide">신청 방법</button>
       <button class="btn sm" data-act="new">곡 등록</button>
     </div>
   </div>
-</div>
+</header>
 
 <main id="top">
-  <section class="hero">
-    <div class="wrap">
-      <h1>이번 학기 자유곡.</h1>
-      <p class="lead">비트를 올리고, 함께할 플레이어를 모으세요.</p>
-      <div class="ctas">
-        <button class="btn" data-act="new">곡 등록하기</button>
-        <a class="btn ghost" href="#board">모집 중인 곡 보기</a>
+  <section class="board" id="board">
+    <div class="wrap wide">
+      <div class="board-head">
+        <div>
+          <h1>모집 보드</h1>
+          <p class="lead">함께할 자유곡을 골라 참여 신청하세요.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="s-open">0</b><span>모집 중</span></div>
+          <div class="stat"><b id="s-songs">0</b><span>등록된 곡</span></div>
+          <div class="stat"><b id="s-apps">0</b><span>참여 신청</span></div>
+        </div>
       </div>
-      <div class="stats">
-        <div class="stat"><b id="s-open">0</b><span>모집 중</span></div>
-        <div class="stat"><b id="s-songs">0</b><span>등록된 곡</span></div>
-        <div class="stat"><b id="s-apps">0</b><span>참여 신청</span></div>
+      <div class="toolbar">
+        <div class="chips" role="group" aria-label="상태 필터">
+          <button class="chipbtn" data-filter="all" aria-pressed="true">전체<span class="n" id="n-all">0</span></button>
+          <button class="chipbtn" data-filter="open" aria-pressed="false">모집 중<span class="n" id="n-open">0</span></button>
+          <button class="chipbtn" data-filter="pick" aria-pressed="false">선정 중<span class="n" id="n-pick">0</span></button>
+          <button class="chipbtn" data-filter="closed" aria-pressed="false">마감<span class="n" id="n-closed">0</span></button>
+        </div>
+        <input class="search" id="q" type="search" placeholder="곡, 이름, 장르 검색" aria-label="검색">
+      </div>
+      <div class="grid" id="grid">
+        <div class="empty"><h3>불러오는 중…</h3><p>등록된 자유곡을 가져오고 있습니다.</p></div>
       </div>
     </div>
   </section>
+</main>
 
-  <section class="tile on-dark" id="guide">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">신청 방법</p>
-        <h2>곡장은 올리고, 플레이어는 누르면 끝.</h2>
-        <p>구글폼과 톡방 공지를 이 페이지 하나로 합쳤습니다.</p>
-      </div>
+<footer>
+  <div class="wrap wide">
+    <span>자유곡 모집 보드 · 신청 기간은 등록 후 2시간 · 같은 사람과 한 학기 3곡 이상 겹치지 않기</span>
+    <span>문의는 임원진에게</span>
+  </div>
+</footer>
+
+<!-- 신청 방법 -->
+<dialog id="dlg-guide" class="guide-dlg" aria-labelledby="g-t">
+  <div class="dlg">
+    <div class="dlg-h"><div><h2 id="g-t">신청 방법</h2><p class="sub">곡장은 올리고, 플레이어는 누르면 끝.</p></div><button type="button" class="x" data-close aria-label="닫기">×</button></div>
+    <div class="dlg-b">
       <div class="roles">
         <article class="role">
           <h3>곡장</h3>
@@ -244,10 +240,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
             <li><div><b>참여 신청 누르기</b><p>이름과 하고 싶은 파트를 적으면 곡장 카드에 바로 이름이 올라갑니다.</p></div></li>
             <li><div><b>곡장 연락 기다리기</b><p>2시간 신청 기간이 끝난 뒤 곡장이 선정해 연락합니다. 선정되면 이름이 파란색으로 바뀝니다.</p></div></li>
           </ol>
-          <p style="margin-top:28px"><a class="link" href="#board">모집 중인 곡 보기 ›</a></p>
         </article>
       </div>
-      <div class="rule" id="rule">
+      <div class="rule">
         <span class="big">3곡</span>
         <div>
           <b>한 학기에 같은 사람과 3곡 이상 겹치지 않기</b>
@@ -255,36 +250,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
         </div>
       </div>
     </div>
-  </section>
-
-  <section class="tile board" id="board">
-    <div class="wrap wide">
-      <div class="sec-head">
-        <p class="eyebrow">모집 보드</p>
-        <h2>함께할 곡을 찾아보세요.</h2>
-      </div>
-      <div class="toolbar">
-        <div class="chips" role="group" aria-label="상태 필터">
-          <button class="chipbtn" data-filter="all" aria-pressed="true">전체<span class="n" id="n-all">0</span></button>
-          <button class="chipbtn" data-filter="open" aria-pressed="false">모집 중<span class="n" id="n-open">0</span></button>
-          <button class="chipbtn" data-filter="pick" aria-pressed="false">선정 중<span class="n" id="n-pick">0</span></button>
-          <button class="chipbtn" data-filter="closed" aria-pressed="false">마감<span class="n" id="n-closed">0</span></button>
-        </div>
-        <input class="search" id="q" type="search" placeholder="곡, 이름, 장르 검색" aria-label="검색">
-      </div>
-      <div class="grid" id="grid">
-        <div class="empty"><h3>불러오는 중…</h3><p>등록된 자유곡을 가져오고 있습니다.</p></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <span>자유곡 모집 보드 · 신청 기간은 등록 후 2시간</span>
-    <span>문의는 임원진에게</span>
+    <div class="dlg-f"><button type="button" class="btn quiet" data-close>닫기</button><button type="button" class="btn" data-act="new">곡 등록하기</button></div>
   </div>
-</footer>
+</dialog>
 
 <!-- 곡 등록 -->
 <dialog id="dlg-new" aria-labelledby="new-t">
@@ -545,7 +513,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
   document.addEventListener("click", async e => {
     const t = e.target.closest("button,[data-close]"); if (!t) return;
-    if (t.dataset.act === "new") return openNew();
+    if (t.dataset.act === "guide") return $("#dlg-guide").showModal();
+    if (t.dataset.act === "new") { const g = $("#dlg-guide"); if (g.open) g.close(); return openNew(); }
     if ("close" in t.dataset) return t.closest("dialog").close();
     if (t.dataset.filter) {
       filter = t.dataset.filter;
@@ -584,7 +553,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       await guarded("new", () => store.set("songs", newId(), data), "등록했습니다. 카드를 캡처해 톡방에 공지하세요");
       remember("jy-name", data.leader); $("#dlg-new").close();
       filter = "all"; document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", b.dataset.filter === "all"));
-      location.hash = "board";
     } catch {}
   });
 
