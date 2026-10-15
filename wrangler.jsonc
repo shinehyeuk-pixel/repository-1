@@ -14,7 +14,7 @@
       "binding": "DB",
       "database_name": "terra-freetrack",
       // `npx wrangler d1 create terra-freetrack` 결과의 database_id로 바꾸기
-      "database_id": "00000000-0000-0000-0000-000000000000"
+      "database_id": "de26a61a-4d6b-41ea-9fd3-ac2d5a09f188"
     }
   ]
 }
