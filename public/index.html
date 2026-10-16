@@ -232,6 +232,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 @media (max-width:833px){.roles{grid-template-columns:1fr}}
 @media (max-width:640px){
   .grid{gap:16px}.card{aspect-ratio:auto;min-height:400px;padding:24px 20px 20px}.card h3{font-size:clamp(36px,11vw,48px)}
+  #export-btn .long{display:none}.subnav .right{gap:6px}
   .search{width:100%}.logo{width:74px}.brand-name{display:none}.role,.rule{padding:20px}.board{padding-block:32px 80px}
   .dlg-h,.dlg-b,.dlg-f{padding-left:20px;padding-right:20px}
 }
@@ -248,6 +249,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   <div class="wrap">
     <a class="brand" href="#top" aria-label="TERRA 자유곡 모집 홈"><span class="logo" aria-hidden="true"></span><span class="brand-name">Free Track</span></a>
     <div class="right">
+      <button class="btn sm quiet" id="export-btn" hidden aria-label="엑셀로 내보내기">엑셀<span class="long">로 내보내기</span></button>
       <button class="btn sm quiet" data-act="guide">신청 방법</button>
       <button class="btn sm" data-act="new">곡 등록</button>
     </div>
@@ -800,8 +802,69 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     } catch {}
   });
 
+  /* ---------- 엑셀 내보내기 (임원진) ---------- */
+  // 라이브러리 없이 .xlsx를 만듦: 시트 XML을 압축 없는 ZIP으로 묶음
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = b => { let c = 0xFFFFFFFF; for (const x of b) c = CRC[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zip(files) {
+    const enc = new TextEncoder(), parts = [], dir = []; let off = 0;
+    for (const [name, text] of files) {
+      const nm = enc.encode(name), data = enc.encode(text), crc = crc32(data);
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true);
+      h.setUint32(14, crc, true); h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, nm.length, true);
+      const d = new DataView(new ArrayBuffer(46));
+      d.setUint32(0, 0x02014b50, true); d.setUint16(4, 20, true); d.setUint16(6, 20, true); d.setUint16(8, 0x0800, true);
+      d.setUint32(16, crc, true); d.setUint32(20, data.length, true); d.setUint32(24, data.length, true); d.setUint16(28, nm.length, true); d.setUint32(42, off, true);
+      parts.push(h, nm, data); dir.push(d, nm); off += 30 + nm.length + data.length;
+    }
+    const size = dir.reduce((n, x) => n + x.byteLength, 0), end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, size, true); end.setUint32(16, off, true);
+    return new Blob([...parts, ...dir, end], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+  const xesc = v => String(v ?? "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const colName = i => { let s = ""; for (i++; i; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + (i - 1) % 26) + s; return s; };
+  function sheetXml(head, rows, widths) {
+    const cell = (v, r, c, st) => typeof v === "number"
+      ? `<c r="${colName(c)}${r}" s="${st}"><v>${v}</v></c>`
+      : `<c r="${colName(c)}${r}" t="inlineStr" s="${st}"><is><t xml:space="preserve">${xesc(v)}</t></is></c>`;
+    const body = [head, ...rows].map((row, i) => `<row r="${i + 1}">${row.map((v, c) => cell(v, i + 1, c, i ? 2 : 1)).join("")}</row>`).join("");
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols><sheetData>${body}</sheetData><autoFilter ref="A1:${colName(head.length - 1)}${rows.length + 1}"/></worksheet>`;
+  }
+  function workbook(sheets) {
+    const ns = "http://schemas.openxmlformats.org", files = [
+      ["[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="${ns}/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`],
+      ["_rels/.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${ns}/package/2006/relationships"><Relationship Id="rId1" Type="${ns}/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+      ["xl/workbook.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="${ns}/spreadsheetml/2006/main" xmlns:r="${ns}/officeDocument/2006/relationships"><sheets>${sheets.map((sh, i) => `<sheet name="${xesc(sh.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>`],
+      ["xl/_rels/workbook.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${ns}/package/2006/relationships">${sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${ns}/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${sheets.length + 1}" Type="${ns}/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+      ["xl/styles.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="${ns}/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="맑은 고딕"/></font><font><b/><sz val="11"/><name val="맑은 고딕"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEDEDED"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="3"><xf/><xf fontId="1" fillId="2" applyFont="1" applyFill="1"><alignment vertical="center"/></xf><xf applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`],
+      ...sheets.map((sh, i) => [`xl/worksheets/sheet${i + 1}.xml`, sheetXml(sh.head, sh.rows, sh.widths)]),
+    ];
+    return zip(files);
+  }
+  const stamp = t => { const d = new Date(t), p = n => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
+  const stLabel = { open: "모집 중", pick: "선정 중", closed: "마감" };
+  function exportXlsx() {
+    const list = [...songs].sort((a, b) => a.createdAt - b.createdAt);
+    const songRows = list.map((s, i) => {
+      const as = appsOf(s.id);
+      return [i + 1, stamp(s.createdAt), stLabel[statusOf(s)], s.title || "자유곡", s.leader, split(s.team).join(", "), s.desc || "", split(s.style).join(", "), safeLink(s.link),
+        as.length, as.filter(a => a.selected).map(a => a.name).join(", "), as.map(a => a.name).join(", ")];
+    });
+    const appRows = list.flatMap(s => appsOf(s.id).map(a => [s.title || "자유곡", s.leader, a.name, a.part || "", a.note || "", a.selected ? "선정" : "", stamp(a.createdAt)]));
+    const blob = workbook([
+      { name: "곡 목록", head: ["번호", "등록 시각", "상태", "곡 제목", "곡장", "이미 정한 팀원", "곡 설명", "원하는 플레이어 스타일", "음원 링크", "신청자 수", "선정된 사람", "신청자 전체"], rows: songRows, widths: [6, 17, 9, 22, 10, 18, 40, 30, 32, 9, 20, 30] },
+      { name: "신청자", head: ["곡 제목", "곡장", "신청자", "하고 싶은 파트", "곡장에게 한마디", "선정", "신청 시각"], rows: appRows, widths: [22, 10, 10, 18, 40, 7, 17] },
+    ]);
+    const a = document.createElement("a"), url = URL.createObjectURL(blob);
+    a.href = url; a.download = `TERRA_freetrack_${stamp(clock()).slice(0, 10)}.xlsx`;
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast(`곡 ${songRows.length}개, 신청 ${appRows.length}건을 엑셀로 내보냈습니다.`);
+  }
+  $("#export-btn").addEventListener("click", () => { if (canEdit) exportXlsx(); });
+
   /* ---------- 임원진 모드 ---------- */
-  function adminLabel() { $("#admin-btn").textContent = canEdit ? "임원진 모드 끄기" : "임원진 모드"; }
+  function adminLabel() { $("#admin-btn").textContent = canEdit ? "임원진 모드 끄기" : "임원진 모드"; $("#export-btn").hidden = !canEdit; }
   $("#admin-btn").addEventListener("click", async () => {
     if (store.mode !== "api") return toast("서버가 연결된 사이트에서만 쓸 수 있습니다.");
     if (canEdit) { ls.set("terra-admin", null); canEdit = false; adminLabel(); render(); return toast("임원진 모드를 껐습니다."); }
